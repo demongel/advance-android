@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_stroyboard"
+    app:startDestination="@id/homeFragment">
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.shakespace.advanceandroid.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_newFeatureFragment"
+            app:destination="@id/newFeatureFragment"
+            app:enterAnim="@anim/act_enter"
+            app:exitAnim="@anim/act_exit"
+            app:popEnterAnim="@anim/act_back_enter"
+            app:popExitAnim="@anim/act_back_exit" />
+    </fragment>
+    <fragment
+        android:id="@+id/newFeatureFragment"
+        android:name="com.shakespace.advanceandroid.chapter01newfeature.NewFeatureFragment"
+        android:label="fragment_new_feature_list"
+        tools:layout="@layout/fragment_new_feature_list" />
+</navigation>
