@@ -6,9 +6,24 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-<!--        <item name="windowActionBar">false</item>-->
-<!--        <item name="windowNoTitle">true</item>-->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+        <!--        是menu显示在actionBar的下方，使用?attr/actionBarSize也可以，但是位置上似乎有一点偏差-->
+<!--        <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>-->
+            <item name="overlapAnchor">false</item>
+            <item name="android:dropDownVerticalOffset">?attr/actionBarSize</item>
+
     </style>
+
+    <style name="OverflowMenu" parent="Widget.AppCompat.PopupMenu.Overflow">
+        <item name="android:windowDisablePreview">true</item>
+        <item name="overlapAnchor">false</item>
+        <item name="android:dropDownVerticalOffset">5.0dp</item>
+    </style>
+
+    <!--    <item name="overlapAnchor">false</item>-->
+    <!--    <item name="android:dropDownVerticalOffset">?attr/actionBarSize</item>-->
 
     <style name="HomeTextViewStyle">
         <item name="android:layout_width">match_parent</item>
@@ -22,5 +37,8 @@
         <item name="android:textSize">18sp</item>
     </style>
 
-
+    <!--    <item name="enterAnim">@anim/act_enter</item>-->
+    <!--    <item name="exitAnim">@anim/act_exit</item>-->
+    <!--    <item name="popEnterAnim">@anim/act_back_enter</item>-->
+    <!--    <item name="popExitAnim">@anim/act_back_exit</item>-->
 </resources>

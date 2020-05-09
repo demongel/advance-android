@@ -10,16 +10,12 @@
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" >
         <action
-            android:id="@+id/action_homeFragment_to_newFeatureFragment"
-            app:destination="@id/newFeatureFragment"
+            android:id="@+id/action_homeFragment_to_new_feature"
+            app:destination="@id/new_feature"
             app:enterAnim="@anim/act_enter"
             app:exitAnim="@anim/act_exit"
             app:popEnterAnim="@anim/act_back_enter"
             app:popExitAnim="@anim/act_back_exit" />
     </fragment>
-    <fragment
-        android:id="@+id/newFeatureFragment"
-        android:name="com.shakespace.advanceandroid.chapter01newfeature.NewFeatureFragment"
-        android:label="fragment_new_feature_list"
-        tools:layout="@layout/fragment_new_feature_list" />
+    <include app:graph="@navigation/new_feature" />
 </navigation>

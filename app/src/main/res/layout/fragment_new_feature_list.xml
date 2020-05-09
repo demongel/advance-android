@@ -1,13 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/list"
-    android:name="com.shakespace.advanceandroid.chapter01newfeature.NewFeatureFragment"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
-    app:layoutManager="LinearLayoutManager"
-    tools:context=".chapter01newfeature.NewFeatureFragment"
-    tools:listitem="@layout/fragment_new_feature" />
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!--        <androidx.appcompat.widget.Toolbar-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="?attr/actionBarSize"-->
+        <!--            app:title="AdvanceAndroid"-->
+        <!--            app:titleTextColor="@color/white"-->
+        <!--            android:background="@color/colorPrimary"-->
+        <!--            />-->
+
+        <TextView
+            android:id="@+id/tv_recyclerview"
+            style="@style/HomeTextViewStyle"
+            android:text="01 Recyclerview" />
+
+        <TextView
+            android:id="@+id/tv_card_view"
+            style="@style/HomeTextViewStyle"
+            android:text="02 Card View" />
+
+        <TextView
+            android:id="@+id/tv_notification"
+            style="@style/HomeTextViewStyle"
+            android:text="03 Notification" />
+
+        <TextView
+            android:id="@+id/tv_toolbar"
+            style="@style/HomeTextViewStyle"
+            android:text="04 ToolBar" />
+
+
+    </LinearLayout>
+
+</ScrollView>

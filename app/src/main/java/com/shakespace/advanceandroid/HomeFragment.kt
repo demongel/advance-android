@@ -1,12 +1,11 @@
 package com.shakespace.advanceandroid
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.IdRes
-import androidx.navigation.Navigation
+import androidx.fragment.app.Fragment
+import com.shakespace.advanceandroid.global.nav
 import kotlinx.android.synthetic.main.fragment_home.*
 
 /**
@@ -30,12 +29,9 @@ class HomeFragment : Fragment() {
     private fun initListener() {
 
         tv_chapter01.setOnClickListener {
-            it.nav(R.id.action_homeFragment_to_newFeatureFragment)
+            it.nav(R.id.action_homeFragment_to_new_feature)
         }
     }
 
-    fun View.nav(@IdRes action: Int) {
-        Navigation.findNavController(this).navigate(action)
-    }
 
 }

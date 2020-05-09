@@ -1,0 +1,13 @@
+
+1. 5.0
+    Material Design
+    多种设备
+    全新通知中心
+    支持64ART
+    多任务视图。。。
+    设备识别解锁
+    OK Google
+    Face unlock
+    RecyclerView
+
+2.

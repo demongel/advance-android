@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/new_feature"
+    app:startDestination="@id/newFeatureFragment">
+
+    <fragment
+        android:id="@+id/newFeatureFragment"
+        android:name="com.shakespace.advanceandroid.chapter01newfeature.NewFeatureFragment"
+        android:label="fragment_new_feature_list"
+        tools:layout="@layout/fragment_new_feature_list">
+        <action
+            android:id="@+id/action_newFeatureFragment_to_recyclerViewFragment"
+            app:destination="@id/recyclerViewFragment" />
+        <action
+            android:id="@+id/action_newFeatureFragment_to_cardViewFragment"
+            app:destination="@id/cardViewFragment" />
+        <action
+            android:id="@+id/action_newFeatureFragment_to_notificationFragment"
+            app:destination="@id/notificationFragment" />
+        <action
+            android:id="@+id/action_newFeatureFragment_to_toolbarFragment"
+            app:destination="@id/toolbarFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/recyclerViewFragment"
+        android:name="com.shakespace.advanceandroid.chapter01newfeature.RecyclerViewFragment"
+        android:label="RecyclerViewFragment" />
+    <fragment
+        android:id="@+id/cardViewFragment"
+        android:name="com.shakespace.advanceandroid.chapter01newfeature.CardViewFragment"
+        android:label="fragment_card_view"
+        tools:layout="@layout/fragment_card_view" />
+    <fragment
+        android:id="@+id/notificationFragment"
+        android:name="com.shakespace.advanceandroid.chapter01newfeature.NotificationFragment"
+        android:label="NotificationFragment" />
+    <fragment
+        android:id="@+id/toolbarFragment"
+        android:name="com.shakespace.advanceandroid.chapter01newfeature.ToolbarFragment"
+        android:label="fragment_toolbar"
+        tools:layout="@layout/fragment_toolbar" />
+</navigation>
