@@ -10,4 +10,35 @@
     Face unlock
     RecyclerView
 
-2.
+2.6.0
+    应用权限（重要）
+        Calendar
+        Camera
+        Location
+        Microphone
+        Phone
+        Sensors
+        Sms
+        Storage
+    Android Pay
+    指纹（重要）
+        最新使用BiometricManager
+    Doze电量管理
+    App Links
+    Now on Tap （google now的功能）
+
+3. 7.0
+    多窗口
+        1. 刚开始选择多窗口模式时，会重走生命周期 onPause--onStop--onDestory -- onCreate --- onStart-- onResume -- onPause
+        2. 点击我们的窗口才会走onResume
+        3. 禁用： 在<application>标签下 添加：android:resizeableActivity="false"
+        4. 恢复时会重走生命周期，直接到onResume
+    DataServer -- 一种流量保护模式
+    改进Java8支持
+    自定义壁纸
+    快速回复
+    Daydream VR支持
+    后台省电
+    下拉快捷设置
+    Unicode9支持和全新emoji
+    Google Assistant

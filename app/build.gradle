@@ -87,4 +87,5 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.coroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$rootProject.coroutinesVersion"
     implementation 'androidx.palette:palette-ktx:1.0.0'
+    implementation 'androidx.biometric:biometric:1.0.1'
 }

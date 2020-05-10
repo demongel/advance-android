@@ -37,6 +37,11 @@
             style="@style/HomeTextViewStyle"
             android:text="04 ToolBar" />
 
+        <TextView
+            android:id="@+id/tv_permission"
+            style="@style/HomeTextViewStyle"
+            android:text="05 Permission/Biometric " />
+
 
     </LinearLayout>
 

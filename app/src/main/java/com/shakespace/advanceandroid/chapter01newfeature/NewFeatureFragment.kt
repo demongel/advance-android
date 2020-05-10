@@ -40,6 +40,10 @@ class NewFeatureFragment : Fragment() {
         tv_toolbar.setOnClickListener {
             it.nav(R.id.action_newFeatureFragment_to_toolbarFragment)
         }
+
+        tv_permission.setOnClickListener {
+            it.nav(R.id.action_newFeatureFragment_to_permissionFragment)
+        }
     }
 
 

@@ -22,6 +22,9 @@
         <action
             android:id="@+id/action_newFeatureFragment_to_toolbarFragment"
             app:destination="@id/toolbarFragment" />
+        <action
+            android:id="@+id/action_newFeatureFragment_to_permissionFragment"
+            app:destination="@id/permissionFragment" />
     </fragment>
     <fragment
         android:id="@+id/recyclerViewFragment"
@@ -41,4 +44,9 @@
         android:name="com.shakespace.advanceandroid.chapter01newfeature.ToolbarFragment"
         android:label="fragment_toolbar"
         tools:layout="@layout/fragment_toolbar" />
+    <fragment
+        android:id="@+id/permissionFragment"
+        android:name="com.shakespace.advanceandroid.chapter01newfeature.PermissionFragment"
+        android:label="fragment_permission"
+        tools:layout="@layout/fragment_permission" />
 </navigation>
