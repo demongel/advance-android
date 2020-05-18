@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_snack_bar"
+            style="@style/HomeTextViewStyle"
+            android:text="Snack Bar" />
+
+        <TextView
+            android:id="@+id/tv_input_layout"
+            style="@style/HomeTextViewStyle"
+            android:text="TextInputLayout" />
+
+        <TextView
+            android:id="@+id/tv_tab_layout"
+            style="@style/HomeTextViewStyle"
+            android:text="TabLayout" />
+
+
+        <TextView
+            android:id="@+id/tv_tab_act"
+            style="@style/HomeTextViewStyle"
+            android:text="TabLayout In Activity" />
+
+
+        <TextView
+            android:id="@+id/tv_drawer"
+            style="@style/HomeTextViewStyle"
+            android:text="DrawerLayout" />
+
+        <TextView
+            android:id="@+id/tv_coordinate"
+            style="@style/HomeTextViewStyle"
+            android:text="Coordinate" />
+
+        <TextView
+            android:id="@+id/tv_behavior_one"
+            style="@style/HomeTextViewStyle"
+            android:text="Behavior One" />
+
+        <TextView
+            android:id="@+id/tv_behavior_two"
+            style="@style/HomeTextViewStyle"
+            android:text="Behavior Two" />
+
+        <TextView
+            android:id="@+id/tv_behavior_three"
+            style="@style/HomeTextViewStyle"
+            android:text="Behavior Three" />
+
+    </LinearLayout>
+
+</ScrollView>

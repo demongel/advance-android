@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/linear"
+            android:icon="@drawable/ic_add_alarm_black_24dp"
+            android:title="ITEM1" />
+        <item
+            android:id="@+id/grid"
+            android:icon="@drawable/ic_library_music_black_24dp"
+            android:title="ITEM2" />
+        <item
+            android:id="@+id/stag"
+            android:icon="@drawable/ic_my_location_black_24dp"
+            android:title="ITEM3" />
+    </group>
+
+
+    <item android:title="其他">
+        <menu>
+            <item
+                android:id="@+id/item5"
+                android:icon="@drawable/ic_library_music_black_24dp"
+                android:title="ITEM5" />
+            <item
+                android:id="@+id/item6"
+                android:icon="@drawable/ic_my_location_black_24dp"
+                android:title="ITEM6" />
+        </menu>
+
+    </item>
+
+
+</menu>

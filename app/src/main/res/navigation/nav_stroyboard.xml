@@ -16,6 +16,10 @@
             app:exitAnim="@anim/act_exit"
             app:popEnterAnim="@anim/act_back_enter"
             app:popExitAnim="@anim/act_back_exit" />
+        <action
+            android:id="@+id/action_homeFragment_to_material"
+            app:destination="@id/material" />
     </fragment>
     <include app:graph="@navigation/new_feature" />
+    <include app:graph="@navigation/material" />
 </navigation>

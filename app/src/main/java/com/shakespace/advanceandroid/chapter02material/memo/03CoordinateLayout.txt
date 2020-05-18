@@ -1,0 +1,9 @@
+
+1. 一般来说CoordinatorLayout和FrameLayout非常接近
+如果什么都不设置，其子元素会以左上角为基准叠加
+
+
+2. 位置可以通过设置anchor和anchorGravity来调整
+
+3. 设置了behavior，很可能导致anchor无效，如果在onDependentViewChanged中有基于dependency的位置设置，会以此为准显示在layout上
+    即，在编译期间就会起作用

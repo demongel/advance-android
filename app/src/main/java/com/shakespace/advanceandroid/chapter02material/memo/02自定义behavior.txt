@@ -1,0 +1,13 @@
+
+1.自定义behavior可以分为两种
+    1. 定义的view监听CoordinatorLayout内部的滑动状态
+        注意onStartNestedScroll和onNestedPreScroll
+    2. 定义的view监听另一个view的状态变化
+        需要注意layoutDependsOn和onDependentViewChanged
+
+
+https://www.jianshu.com/p/73c19919abff
+
+2. 功能上，就是讲一个子类的变化，通过CoordinatorLayout和behavior找到关联的类，
+
+3. 常用的ScrollingViewBehavior，是在监听AppBarLayout的变化

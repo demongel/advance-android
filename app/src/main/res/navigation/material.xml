@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/material"
+    app:startDestination="@id/materialFragment">
+
+    <fragment
+        android:id="@+id/materialFragment"
+        android:name="com.shakespace.advanceandroid.chapter02material.MaterialFragment"
+        android:label="fragment_material"
+        tools:layout="@layout/fragment_material" >
+        <action
+            android:id="@+id/action_materialFragment_to_textInputFragment"
+            app:destination="@id/textInputFragment" />
+        <action
+            android:id="@+id/action_materialFragment_to_tabLayoutFragment"
+            app:destination="@id/tabLayoutFragment" />
+        <action
+            android:id="@+id/action_materialFragment_to_drawerFragment"
+            app:destination="@id/drawerFragment" />
+        <action
+            android:id="@+id/action_materialFragment_to_coordinatorFragment"
+            app:destination="@id/coordinatorFragment" />
+        <action
+            android:id="@+id/action_materialFragment_to_behaviorOneFragment"
+            app:destination="@id/behaviorOneFragment" />
+        <action
+            android:id="@+id/action_materialFragment_to_behaviorTwoFragment"
+            app:destination="@id/behaviorTwoFragment" />
+        <action
+            android:id="@+id/action_materialFragment_to_behaviorThreeFragment"
+            app:destination="@id/behaviorThreeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/textInputFragment"
+        android:name="com.shakespace.advanceandroid.chapter02material.TextInputFragment"
+        android:label="fragment_text_input"
+        tools:layout="@layout/fragment_text_input" />
+    <fragment
+        android:id="@+id/tabLayoutFragment"
+        android:name="com.shakespace.advanceandroid.chapter02material.TabLayoutFragment"
+        android:label="fragment_tab_layout"
+        tools:layout="@layout/fragment_tab_layout" />
+    <fragment
+        android:id="@+id/drawerFragment"
+        android:name="com.shakespace.advanceandroid.chapter02material.DrawerFragment"
+        android:label="fragment_drawer"
+        tools:layout="@layout/fragment_drawer" />
+    <fragment
+        android:id="@+id/coordinatorFragment"
+        android:name="com.shakespace.advanceandroid.chapter02material.CoordinatorFragment"
+        android:label="fragment_coordinator"
+        tools:layout="@layout/fragment_coordinator" />
+    <fragment
+        android:id="@+id/behaviorOneFragment"
+        android:name="com.shakespace.advanceandroid.chapter02material.BehaviorOneFragment"
+        android:label="fragment_behavior_one"
+        tools:layout="@layout/fragment_behavior_one" />
+    <fragment
+        android:id="@+id/behaviorTwoFragment"
+        android:name="com.shakespace.advanceandroid.chapter02material.BehaviorTwoFragment"
+        android:label="BehaviorTwoFragment" />
+    <fragment
+        android:id="@+id/behaviorThreeFragment"
+        android:name="com.shakespace.advanceandroid.chapter02material.BehaviorThreeFragment"
+        android:label="BehaviorThreeFragment" />
+</navigation>

@@ -77,4 +77,16 @@ fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.updateList(list: List<T
     this.submitList(if (list == this.currentList) list.toList() else list)
 }
 
+val Context.statusBarHeight: Int
+    get() {
+        return resources.getDimensionPixelSize(
+            this.resources.getIdentifier(
+                "status_bar_height",
+                "dimen",
+                "android"
+            )
+
+        )
+    }
+
 
