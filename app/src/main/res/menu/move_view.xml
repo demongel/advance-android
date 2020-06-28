@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    >
+
+    <item
+        android:id="@+id/params"
+        android:icon="@color/aquamarine"
+        android:title="Params" />
+    <item
+        android:id="@+id/anim"
+        android:icon="@color/bisque"
+        android:title="Anim" />
+
+    <item
+        android:id="@+id/animator"
+        android:icon="@color/bisque"
+        android:title="Animator" />
+    <item
+        android:id="@+id/scroll_to"
+        android:icon="@color/antiquewhite"
+        android:title="Scroll to" />
+
+    <item
+        android:id="@+id/scroll_by"
+        android:icon="@color/antiquewhite"
+        android:title="Scroll by" />
+
+    <item
+        android:id="@+id/scroller"
+        android:icon="@color/antiquewhite"
+        android:title="Scroller" />
+</menu>

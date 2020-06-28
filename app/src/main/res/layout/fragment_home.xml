@@ -27,6 +27,11 @@
             style="@style/HomeTextViewStyle"
             android:text="02 Material Design" />
 
+        <TextView
+            android:id="@+id/tv_chapter03"
+            style="@style/HomeTextViewStyle"
+            android:text="03 View" />
+
 
     </LinearLayout>
 

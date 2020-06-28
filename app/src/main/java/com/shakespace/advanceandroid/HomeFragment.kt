@@ -35,6 +35,10 @@ class HomeFragment : Fragment() {
         tv_chapter02.setOnClickListener {
             it.nav(R.id.action_homeFragment_to_material)
         }
+
+        tv_chapter03.setOnClickListener {
+            it.nav(R.id.action_homeFragment_to_graph_03_view)
+        }
     }
 
 

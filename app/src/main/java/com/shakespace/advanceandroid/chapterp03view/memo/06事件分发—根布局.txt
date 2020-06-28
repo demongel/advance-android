@@ -1,0 +1,97 @@
+
+1. 布局
+    setContentView(R.layout.activity_main)
+
+2. androidx.appcompat.app.AppCompatActivity
+
+       @Override
+        public void setContentView(@LayoutRes int layoutResID) {
+            getDelegate().setContentView(layoutResID);
+        }
+
+3. androidx.appcompat.app.AppCompatDelegateImpl
+
+           @Override
+            public void setContentView(int resId) {
+                ensureSubDecor();
+                ViewGroup contentParent = mSubDecor.findViewById(android.R.id.content);
+                contentParent.removeAllViews();
+                LayoutInflater.from(mContext).inflate(resId, contentParent);
+                mAppCompatWindowCallback.getWrapped().onContentChanged();
+            }
+
+
+             private void ensureSubDecor() {
+                 if (!mSubDecorInstalled) {
+                     mSubDecor = createSubDecor();
+
+                    。。。。
+             }
+
+            在 createSubDecor 会根据 R.styleable.AppCompatThem 主题里的设置 调用 requestWindowFeature
+            并保存一些boolean 值
+
+            switch (featureId) {
+                        case FEATURE_SUPPORT_ACTION_BAR:
+                            throwFeatureRequestIfSubDecorInstalled();
+                            mHasActionBar = true;
+                            return true;
+                        case FEATURE_SUPPORT_ACTION_BAR_OVERLAY:
+                            throwFeatureRequestIfSubDecorInstalled();
+                            mOverlayActionBar = true;
+                            return true;
+                        case FEATURE_ACTION_MODE_OVERLAY:
+                            throwFeatureRequestIfSubDecorInstalled();
+                            mOverlayActionMode = true;
+                            return true;
+                        case Window.FEATURE_PROGRESS:
+                            throwFeatureRequestIfSubDecorInstalled();
+                            mFeatureProgress = true;
+                            return true;
+                        case Window.FEATURE_INDETERMINATE_PROGRESS:
+                            throwFeatureRequestIfSubDecorInstalled();
+                            mFeatureIndeterminateProgress = true;
+                            return true;
+                        case Window.FEATURE_NO_TITLE:
+                            throwFeatureRequestIfSubDecorInstalled();
+                            mWindowNoTitle = true;
+                            return true;
+                    }
+
+
+             如果需要ActionBar
+             布局是  subDecor = (ViewGroup) LayoutInflater.from(themedContext)
+                                          .inflate(R.layout.abc_screen_toolbar, null);
+
+              如果不需要
+                  subDecor = (ViewGroup) inflater.inflate(R.layout.abc_screen_simple, null);
+
+              这个根布局 在之前测试touchEvent 有出现
+
+    <androidx.appcompat.widget.FitWindowsLinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/action_bar_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:fitsSystemWindows="true">
+
+        <androidx.appcompat.widget.ViewStubCompat
+            android:id="@+id/action_mode_bar_stub"
+            android:inflatedId="@+id/action_mode_bar"
+            android:layout="@layout/abc_action_mode_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <include layout="@layout/abc_screen_content_include" />
+
+    </androidx.appcompat.widget.FitWindowsLinearLayout>
+
+                如果 windowContentView != null
+                // Change our content FrameLayout to use the android.R.id.content id.
+                // Useful for fragments.
+                windowContentView.setId(View.NO_ID);
+                contentView.setId(android.R.id.content);
+
+                // Now set the Window's content view with the decor
+                mWindow.setContentView(subDecor);

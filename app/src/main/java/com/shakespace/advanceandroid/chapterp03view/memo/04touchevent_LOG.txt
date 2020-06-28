@@ -1,0 +1,61 @@
+
+1. 从decorView开始
+   有三个子view
+   第一次
+       android.widget.LinearLayout{30f299e V.E...... ........ 0,0-1080,2088}
+       android.view.View{2d6d11 V.ED..... ........ 0,2088-1080,2220 #1020030 android:id/navigationBarBackground}
+       android.view.View{6b8ce76 V.ED..... ........ 0,0-1080,66 #102002f android:id/statusBarBackground}   ---状态栏先接收事件？
+
+    第二次
+        android.view.ViewStub{dc0c77 G.E...... ......I. 0,0-0,0 #1020194 android:id/action_mode_bar_stub}
+        android.widget.FrameLayout{487c0e4 V.E...... ........ 0,66-1080,2088}
+
+    第三次
+          androidx.appcompat.widget.FitWindowsLinearLayout{eeac94d V.E...... ........ 0,0-1080,2022 #7f090034 app:id/action_bar_root}
+
+-- 漏了一个 --
+            androidx.appcompat.widget.ViewStubCompat{93f7068 G.E...... ......I. 0,0-0,0 #7f090050 app:id/action_mode_bar_stub}
+            androidx.appcompat.widget.ContentFrameLayout{3449fc4 V.E...... ........ 0,0-1080,2022 #1020002 android:id/content}
+
+    第四次 -- Activity的根布局
+        androidx.constraintlayout.widget.ConstraintLayout{9720750 V.E...... ........ 0,0-1080,2022 #7f0900f7 app:id/main_root}
+
+    第五次
+        androidx.appcompat.widget.Toolbar{ba7ad49 V.E...... ........ 0,0-1080,154 #7f0901a8 app:id/toolbar}
+        androidx.fragment.app.FragmentContainerView{ca7364e V.E...... ........ 0,154-1080,2022 #7f09011a app:id/my_nav_host_fragment}
+
+    第六次 fragment 的根布局
+        android.widget.ScrollView{412136f VFED.V... ........ 0,0-1080,1868}
+
+    第七次 scrollview的子布局
+        android.widget.LinearLayout{478487c V.E...... ........ 0,0-1080,248}
+
+    第八次
+        androidx.appcompat.widget.AppCompatTextView{934d505 VFED..C.. ........ 44,14-1036,124 #7f0901c5 app:id/tv_move}
+        androidx.appcompat.widget.AppCompatTextView{b44695a VFED..C.. ........ 44,138-1036,248 #7f0901b5 app:id/tv_animator}
+
+    这里tv_move是我们实际点击的目标 通过 addTouchTarget(child, idBitsToAssign) 赋值给mFirstTouchTarget
+    找到tv_move后，它就成为了LinearLayout的 mFirstTouchTarget
+    逐级上传，LinearLayout就是ScrollView的 mFirstTouchTarget
+    * 在tv_more没找到之前，所有 mFirstTouchTarget 都是null
+
+2. 如果同时有 setOnTouchListener 和 setOnClickListener
+
+            if (onFilterTouchEventForSecurity(event)) {
+                if ((mViewFlags & ENABLED_MASK) == ENABLED && handleScrollBarDragging(event)) {
+                    result = true;
+                }
+                //noinspection SimplifiableIfStatement
+                ListenerInfo li = mListenerInfo;
+                if (li != null && li.mOnTouchListener != null
+                        && (mViewFlags & ENABLED_MASK) == ENABLED
+                        && li.mOnTouchListener.onTouch(this, event)) {
+                    result = true;
+                }
+
+                // MEMO 如果没有mOnTouchListener 或者 onTouch返回false ，才会进入 onTouchEvent
+                // MEMO 在 onTouchEvent 的ActionUp里 才可能会处理 PerformClick()  执行onClickListener 的事件
+                if (!result && onTouchEvent(event)) {
+                    result = true;
+                }
+            }

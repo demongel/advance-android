@@ -1,0 +1,136 @@
+
+1. 默认插值器 ViscousFluidInterpolator
+
+2. startScroll 方法 只是赋值  起点、终点、差值
+        /**
+         * Start scrolling by providing a starting point, the distance to travel,
+         * and the duration of the scroll.
+         *
+         * @param startX Starting horizontal scroll offset in pixels. Positive
+         *        numbers will scroll the content to the left.
+         * @param startY Starting vertical scroll offset in pixels. Positive numbers
+         *        will scroll the content up.
+         * @param dx Horizontal distance to travel. Positive numbers will scroll the
+         *        content to the left.
+         * @param dy Vertical distance to travel. Positive numbers will scroll the
+         *        content up.
+         * @param duration Duration of the scroll in milliseconds.
+         */
+        public void startScroll(int startX, int startY, int dx, int dy, int duration) {
+            mMode = SCROLL_MODE;
+            mFinished = false;
+            mDuration = duration;
+            mStartTime = AnimationUtils.currentAnimationTimeMillis();
+            mStartX = startX;
+            mStartY = startY;
+            mFinalX = startX + dx;
+            mFinalY = startY + dy;
+            mDeltaX = dx;
+            mDeltaY = dy;
+            mDurationReciprocal = 1.0f / (float) mDuration;
+        }
+
+3. 执行后调用invalidate() ， 重走 draw 方法， draw() 会调用 computeScroll
+
+        override fun computeScroll() {
+            super.computeScroll()
+            if (scroller.computeScrollOffset()) {
+                scrollTo(scroller.currX, scroller.currY)
+                postInvalidate() // 继续重绘，直到 computeScrollOffset 返回false ，false 表示滑动完成
+            }
+        }
+
+        关键就在 scroller.computeScrollOffset()
+
+
+    public boolean computeScrollOffset() {
+        if (mFinished) {
+            return false;
+        }
+
+        int timePassed = (int)(AnimationUtils.currentAnimationTimeMillis() - mStartTime);
+
+        if (timePassed < mDuration) {
+            switch (mMode) {
+            case SCROLL_MODE:  // MEMO  调用startScroll
+                final float x = mInterpolator.getInterpolation(timePassed * mDurationReciprocal);
+                mCurrX = mStartX + Math.round(x * mDeltaX);
+                mCurrY = mStartY + Math.round(x * mDeltaY);
+                break;
+            case FLING_MODE: // MEMO 调用 fling
+                final float t = (float) timePassed / mDuration;
+                final int index = (int) (NB_SAMPLES * t);
+                float distanceCoef = 1.f;
+                float velocityCoef = 0.f;
+                if (index < NB_SAMPLES) {
+                    final float t_inf = (float) index / NB_SAMPLES;
+                    final float t_sup = (float) (index + 1) / NB_SAMPLES;
+                    final float d_inf = SPLINE_POSITION[index];
+                    final float d_sup = SPLINE_POSITION[index + 1];
+                    velocityCoef = (d_sup - d_inf) / (t_sup - t_inf);
+                    distanceCoef = d_inf + (t - t_inf) * velocityCoef;
+                }
+
+                mCurrVelocity = velocityCoef * mDistance / mDuration * 1000.0f;
+
+                mCurrX = mStartX + Math.round(distanceCoef * (mFinalX - mStartX));
+                // Pin to mMinX <= mCurrX <= mMaxX
+                mCurrX = Math.min(mCurrX, mMaxX);
+                mCurrX = Math.max(mCurrX, mMinX);
+
+                mCurrY = mStartY + Math.round(distanceCoef * (mFinalY - mStartY));
+                // Pin to mMinY <= mCurrY <= mMaxY
+                mCurrY = Math.min(mCurrY, mMaxY);
+                mCurrY = Math.max(mCurrY, mMinY);
+
+                if (mCurrX == mFinalX && mCurrY == mFinalY) {
+                    mFinished = true;
+                }
+
+                break;
+            }
+        }
+        else {
+            mCurrX = mFinalX;
+            mCurrY = mFinalY;
+            mFinished = true;
+        }
+        return true;
+    }
+
+3. 修改scrollX 会调用 set方法，
+        public void setScrollX(int value) {
+            scrollTo(value, mScrollY);
+        }
+        通过scrollTo 进而导致重绘
+
+        View.java
+            attachInfo.mViewRootImpl.dispatchInvalidateOnAnimation(this);
+
+        ViewRootImpl.java:
+            public void dispatchInvalidateOnAnimation(View view) {
+                mInvalidateOnAnimationRunnable.addView(view);
+            }
+
+            in Runnable
+                    public void addView(View view) {
+                        synchronized (this) {
+                            mViews.add(view);
+                            postIfNeededLocked();
+                        }
+                    }
+
+                            private void postIfNeededLocked() {
+                                if (!mPosted) {
+                                    mChoreographer.postCallback(Choreographer.CALLBACK_ANIMATION, this, null);
+                                    mPosted = true;
+                                }
+                            }
+            mChoreographer
+            doCallbacks回调方法有4个类别：INPUT（输入事件），ANIMATION（动画），TRAVERSAL（窗口刷新），COMMIT（完成后的提交操作）。
+
+4. onFling 中没有直接修改scrollX ， 但是是紧接着 onScroll发生的 ， 所以可以同样不 调用invalidate
+
+    关于屏幕刷新，应用层发起了之后，才会接受下一个刷新事件，如果不是，不会监听。
+
+5. 注意OverScroller 和 Scroller 大部分时候都可以替换

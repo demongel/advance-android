@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary"
+        android:layoutAnimation="@anim/anim_layout"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_object_alpha"
+            style="@style/HomeTextViewStyle"
+            android:text="Object Alpha" />
+
+        <TextView
+            android:id="@+id/tv_object_rotate"
+            style="@style/HomeTextViewStyle"
+            android:text="Object Rotate" />
+
+        <TextView
+            android:id="@+id/tv_object_trans"
+            style="@style/HomeTextViewStyle"
+            android:text="Object Trans" />
+
+        <TextView
+            android:id="@+id/tv_object_scale"
+            style="@style/HomeTextViewStyle"
+            android:text="Object Scale" />
+
+
+        <TextView
+            android:id="@+id/tv_object_set"
+            style="@style/HomeTextViewStyle"
+            android:text="Object Set" />
+
+        <TextView
+            android:id="@+id/tv_object_xml"
+            style="@style/HomeTextViewStyle"
+            android:text="Object XML" />
+
+        <TextView
+            android:id="@+id/tv_property"
+            style="@style/HomeTextViewStyle"
+            android:text="PropertyValueHolder" />
+
+        <ImageView
+            android:id="@+id/iv_anim"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/abc_vector_test" />
+
+    </LinearLayout>
+
+</ScrollView>

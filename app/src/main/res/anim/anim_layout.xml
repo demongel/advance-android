@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layoutAnimation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:animation="@anim/alpha"
+    android:animationOrder="normal"
+    android:delay="0.1"
+    android:interpolator="@android:interpolator/accelerate_decelerate"
+    tools:ignore="ExtraText">
+
+    对应LayoutAnimationController
+    layoutAnimation 作用于一个ViewGroup
+    它的子元素出场时都有带有动画效果。
+    这个可以用在ListView （Recycleview可能不需要这个），使每个item都以一定的动画出现
+
+    delay ： 表示延迟多少出厂 。 和引入的动画的时间有关。  延迟时间= 动画时长*delay
+    这个关联的alpha是1000ms，那么viewgroup将会每隔100ms出现一个元素
+    normal ： 所有子元素正序入场， reverse 表示逆序，random随机
+
+
+    使用时，给ViewGroup添加layoutAnimation属性即可
+    android:layoutAnimation="@anim/anim_layout"
+
+    也可在代码中通 LayoutAnimationController ， LayoutAnimationController 可以通过set方法设置delay、动画等属性
+    然后通过viewgroup.setLayoutAnimation(animationController)即可
+
+</layoutAnimation>

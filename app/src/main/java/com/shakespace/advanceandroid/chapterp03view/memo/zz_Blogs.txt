@@ -1,0 +1,4 @@
+
+1. https://www.jianshu.com/p/0d00cb85fdf3  屏幕刷新机制
+
+2. http://gityuan.com/2017/02/25/choreographer/   choreographer原理

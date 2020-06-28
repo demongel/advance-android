@@ -1,0 +1,15 @@
+
+1. 通过Layout修改位置 left、top、right、bottom
+
+2. offsetLeftAndRight方法
+
+3. LayoutParams
+
+4. 动画
+
+5. scrollTo scrollBy
+
+6. Scroller
+
+
+

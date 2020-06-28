@@ -1,0 +1,21 @@
+
+1. 获取宽高（不应该在Activity生命周期中直接获取）
+    getWidth
+    getHeight
+
+
+2. 坐标
+    getTop
+    getBottom
+    getLeft
+    getRight
+
+3. 触摸位置
+    getX
+    getY        点和view的距离
+    getRawX     点和屏幕的距离
+    getRawY
+
+
+
+

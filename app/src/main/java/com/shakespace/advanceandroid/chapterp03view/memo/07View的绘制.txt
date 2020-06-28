@@ -1,0 +1,182 @@
+
+ActivityThread
+
+1.  performLaunchActivity
+        mInstrumentation.callActivityOnCreate
+        会调用Activity的onCreate， DecorView在这创建完成
+
+
+   handleResumeActivity
+
+    @Override
+    public void handleResumeActivity(IBinder token, boolean finalStateRequest, boolean isForward,
+            String reason) {
+         ....
+        final ActivityClientRecord r = performResumeActivity(token, finalStateRequest, reason); // MEMO  onResume
+        .....
+        if (r.window == null && !a.mFinished && willBeVisible) {
+            r.window = r.activity.getWindow();
+            View decor = r.window.getDecorView();
+            decor.setVisibility(View.INVISIBLE);
+            ViewManager wm = a.getWindowManager();
+            WindowManager.LayoutParams l = r.window.getAttributes();
+            a.mDecor = decor;
+            l.type = WindowManager.LayoutParams.TYPE_BASE_APPLICATION;
+            l.softInputMode |= forwardBit;
+            if (r.mPreserveWindow) {
+                a.mWindowAdded = true;
+                r.mPreserveWindow = false;
+                // Normally the ViewRoot sets up callbacks with the Activity
+                // in addView->ViewRootImpl#setView. If we are instead reusing
+                // the decor view we have to notify the view root that the
+                // callbacks may have changed.
+                ViewRootImpl impl = decor.getViewRootImpl();
+                if (impl != null) {
+                    impl.notifyChildRebuilt();
+                }
+            }
+            if (a.mVisibleFromClient) {
+                if (!a.mWindowAdded) {
+                    a.mWindowAdded = true;
+                    wm.addView(decor, l); // MEMO  添加DecorView
+                } else {
+                    // The activity will get a callback for this {@link LayoutParams} change
+                    // earlier. However, at that time the decor will not be set (this is set
+                    // in this method), so no action will be taken. This call ensures the
+                    // callback occurs with the decor set.
+                    a.onWindowAttributesChanged(l);
+                }
+            }
+
+            // If the window has already been added, but during resume
+            // we started another activity, then don't yet make the
+            // window visible.
+        } else if (!willBeVisible) {
+            if (localLOGV) Slog.v(TAG, "Launch " + r + " mStartedActivity set");
+            r.hideForNow = true;
+        }
+
+        // Get rid of anything left hanging around.
+        cleanUpPendingRemoveWindows(r, false /* force */);
+
+        // The window is now visible if it has been added, we are not
+        // simply finishing, and we are not starting another activity.
+        if (!r.activity.mFinished && willBeVisible && r.activity.mDecor != null && !r.hideForNow) {
+            if (r.newConfig != null) {
+                performConfigurationChangedForActivity(r, r.newConfig);
+                if (DEBUG_CONFIGURATION) {
+                    Slog.v(TAG, "Resuming activity " + r.activityInfo.name + " with newConfig "
+                            + r.activity.mCurrentConfig);
+                }
+                r.newConfig = null;
+            }
+            if (localLOGV) Slog.v(TAG, "Resuming " + r + " with isForward=" + isForward);
+            WindowManager.LayoutParams l = r.window.getAttributes();
+            if ((l.softInputMode
+                    & WindowManager.LayoutParams.SOFT_INPUT_IS_FORWARD_NAVIGATION)
+                    != forwardBit) {
+                l.softInputMode = (l.softInputMode
+                        & (~WindowManager.LayoutParams.SOFT_INPUT_IS_FORWARD_NAVIGATION))
+                        | forwardBit;
+                if (r.activity.mVisibleFromClient) {
+                    ViewManager wm = a.getWindowManager();
+                    View decor = r.window.getDecorView();
+                    wm.updateViewLayout(decor, l);
+                }
+            }
+
+            r.activity.mVisibleFromServer = true;
+            mNumVisibleActivities++;
+            if (r.activity.mVisibleFromClient) {
+                r.activity.makeVisible(); //  MEMO  设置成可见
+            }
+        }
+
+        r.nextIdle = mNewActivities;
+        mNewActivities = r;
+        if (localLOGV) Slog.v(TAG, "Scheduling idle handler for " + r);
+        Looper.myQueue().addIdleHandler(new Idler());
+    }
+
+3. 重点在于  wm.addView(decor, l)
+    具体实现在WindowManagerImpl
+            @Override
+            public void addView(@NonNull View view, @NonNull ViewGroup.LayoutParams params) {
+                applyDefaultToken(params);
+                mGlobal.addView(view, params, mContext.getDisplay(), mParentWindow);
+            }
+
+4. WindowManagerGlobal.java
+
+      public void addView(View view, ViewGroup.LayoutParams params,
+                Display display, Window parentWindow) {
+                ....
+
+            ViewRootImpl root;
+            View panelParentView = null;
+
+                .....
+                root = new ViewRootImpl(view.getContext(), display); // MEMO
+
+                view.setLayoutParams(wparams);
+
+                mViews.add(view);
+                mRoots.add(root);
+                mParams.add(wparams);
+
+                // do this last because it fires off messages to start doing things
+                try {
+                    root.setView(view, wparams, panelParentView);// MEMO
+                } catch (RuntimeException e) {
+                    // BadTokenException or InvalidDisplayException, clean up.
+                    if (index >= 0) {
+                        removeViewLocked(index, true);
+                    }
+                    throw e;
+                }
+            }
+        }
+
+5. setView() -- requestLayout() -- scheduleTraversals(); -- mChoreographer.postCallback(Choreographer.CALLBACK_TRAVERSAL, mTraversalRunnable, null);
+    执行 mTraversalRunnable 的run方法
+     doTraversal(); - performTraversals();
+
+6.
+private void performTraversals() {
+        。。。。
+                    if (!mStopped || mReportNextDraw) {
+                        boolean focusChangedDueToTouchMode = ensureTouchModeLocally(
+                                (relayoutResult&WindowManagerGlobal.RELAYOUT_RES_IN_TOUCH_MODE) != 0);
+                        if (focusChangedDueToTouchMode || mWidth != host.getMeasuredWidth()
+                                || mHeight != host.getMeasuredHeight() || contentInsetsChanged ||
+                                updatedConfiguration) {
+                            int childWidthMeasureSpec = getRootMeasureSpec(mWidth, lp.width);
+                            int childHeightMeasureSpec = getRootMeasureSpec(mHeight, lp.height);
+
+                            if (DEBUG_LAYOUT) Log.v(mTag, "Ooops, something changed!  mWidth="
+                                    + mWidth + " measuredWidth=" + host.getMeasuredWidth()
+                                    + " mHeight=" + mHeight
+                                    + " measuredHeight=" + host.getMeasuredHeight()
+                                    + " coveredInsetsChanged=" + contentInsetsChanged);
+
+                             // Ask host how big it wants to be
+                            performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
+
+        。。。。
+
+               if (didLayout) {
+                    performLayout(lp, mWidth, mHeight);
+
+        。。。。。。。。
+
+                    if (!cancelDraw) {
+                        if (mPendingTransitions != null && mPendingTransitions.size() > 0) {
+                            for (int i = 0; i < mPendingTransitions.size(); ++i) {
+                                mPendingTransitions.get(i).startChangingAnimations();
+                            }
+                            mPendingTransitions.clear();
+                        }
+
+                        performDraw();
+
+    // MEMO  分别对应 measure  layout 和 draw

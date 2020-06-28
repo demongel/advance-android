@@ -1,0 +1,264 @@
+
+1. View.java
+
+          public void invalidate() {
+                invalidate(true);
+          }
+
+          @UnsupportedAppUsage
+          public void invalidate(boolean invalidateCache) {
+              invalidateInternal(0, 0, mRight - mLeft, mBottom - mTop, invalidateCache, true);
+          }
+
+           void invalidateInternal(int l, int t, int r, int b, boolean invalidateCache,
+                   boolean fullInvalidate) {
+               if (mGhostView != null) {
+                   mGhostView.invalidate(true);
+                   return;
+               }
+
+               if (skipInvalidate()) {
+                   return;
+               }
+                ....
+               if ((mPrivateFlags & (PFLAG_DRAWN | PFLAG_HAS_BOUNDS)) == (PFLAG_DRAWN | PFLAG_HAS_BOUNDS)
+                       || (invalidateCache && (mPrivateFlags & PFLAG_DRAWING_CACHE_VALID) == PFLAG_DRAWING_CACHE_VALID)
+                       || (mPrivateFlags & PFLAG_INVALIDATED) != PFLAG_INVALIDATED
+                       || (fullInvalidate && isOpaque() != mLastIsOpaque)) {
+                    ....
+                   if (p != null && ai != null && l < r && t < b) {
+                       final Rect damage = ai.mTmpInvalRect;
+                       damage.set(l, t, r, b);
+                       p.invalidateChild(this, damage); // MEMO 执行这里
+                   }
+
+                    ....
+           }
+
+    ViewGroup
+            public final void invalidateChild(View child, final Rect dirty) {
+                final AttachInfo attachInfo = mAttachInfo;
+                if (attachInfo != null && attachInfo.mHardwareAccelerated) { // 硬件加速
+                    // HW accelerated fast path
+                    onDescendantInvalidated(child, child);
+                    return;
+                }
+
+                ...
+            }
+
+              public void onDescendantInvalidated(@NonNull View child, @NonNull View target) {
+                    /*
+                     * HW-only, Rect-ignoring damage codepath
+                     *
+                     * We don't deal with rectangles here, since RenderThread native code computes damage for
+                     * everything drawn by HWUI (and SW layer / drawing cache doesn't keep track of damage area)
+                     */
+                    ...
+
+                    if (mParent != null) {
+                        mParent.onDescendantInvalidated(this, target); // MEMO 如果父布局不为null 继续调用父布局， 一直到ViewRootImpl
+                    }
+                }
+
+
+
+    ViewRootImpl
+
+        @Override
+        public void onDescendantInvalidated(@NonNull View child, @NonNull View descendant) {
+            // TODO: Re-enable after camera is fixed or consider targetSdk checking this
+            // checkThread();
+            if ((descendant.mPrivateFlags & PFLAG_DRAW_ANIMATION) != 0) {
+                mIsAnimating = true;
+            }
+            invalidate();
+        }
+
+      @UnsupportedAppUsage
+         void invalidate() {
+             mDirty.set(0, 0, mWidth, mHeight);
+             if (!mWillDrawSoon) {
+                 scheduleTraversals(); // MEMO traersal  是遍历的意思
+             }
+         }
+
+       @UnsupportedAppUsage
+          void scheduleTraversals() {
+              if (!mTraversalScheduled) {
+                  mTraversalScheduled = true;
+                  mTraversalBarrier = mHandler.getLooper().getQueue().postSyncBarrier();
+                  mChoreographer.postCallback( // MEMO choreographer 是编舞者的意思
+                          Choreographer.CALLBACK_TRAVERSAL, mTraversalRunnable, null);
+                   ....
+              }
+          }
+
+
+Choreographer
+        private void postCallbackDelayedInternal(int callbackType,
+                Object action, Object token, long delayMillis) {
+             ....
+            synchronized (mLock) {
+                final long now = SystemClock.uptimeMillis();
+                final long dueTime = now + delayMillis;
+                mCallbackQueues[callbackType].addCallbackLocked(dueTime, action, token);
+
+                if (dueTime <= now) {
+                    scheduleFrameLocked(now); // MEMO  可以理解为主线程 ， else 里面最后调用是一样的
+                } else {
+                    Message msg = mHandler.obtainMessage(MSG_DO_SCHEDULE_CALLBACK, action);
+                    msg.arg1 = callbackType;
+                    msg.setAsynchronous(true);
+                    mHandler.sendMessageAtTime(msg, dueTime);
+                }
+            }
+        }
+
+          private void scheduleFrameLocked(long now) {
+                if (!mFrameScheduled) {
+                    mFrameScheduled = true; // MEMO  这里设置为true
+                    if (USE_VSYNC) {
+
+                        // If running on the Looper thread, then schedule the vsync immediately,
+                        // otherwise post a message to schedule the vsync from the UI thread
+                        // as soon as possible.
+                        if (isRunningOnLooperThreadLocked()) {
+                            scheduleVsyncLocked(); // MEMO 主线程
+                        } else {
+                            Message msg = mHandler.obtainMessage(MSG_DO_SCHEDULE_VSYNC);
+                            msg.setAsynchronous(true);
+                            mHandler.sendMessageAtFrontOfQueue(msg);
+                        }
+                    } else {
+                       .....
+                        Message msg = mHandler.obtainMessage(MSG_DO_FRAME);
+                        msg.setAsynchronous(true);
+                        mHandler.sendMessageAtTime(msg, nextFrameTime);
+                    }
+                }
+            }
+
+
+        @UnsupportedAppUsage
+        private void scheduleVsyncLocked() {
+            mDisplayEventReceiver.scheduleVsync();
+        }
+
+        public void scheduleVsync() {
+            if (mReceiverPtr == 0) {
+                Log.w(TAG, "Attempted to schedule a vertical sync pulse but the display event "
+                        + "receiver has already been disposed.");
+            } else {
+                nativeScheduleVsync(mReceiverPtr);  // MEMO  相当于注册，会收到下一次屏幕刷新的信号 VSync  -- 》  mMessageQueue->raiseAndClearException(env, "dispatchVsync");
+            }
+        }
+
+
+内部类 Choreographer.FrameDisplayEventReceiver
+
+      @Override
+        public void onVsync(long timestampNanos, long physicalDisplayId, int frame) {
+            // Post the vsync event to the Handler.
+            // The idea is to prevent incoming vsync events from completely starving
+            // the message queue.  If there are no messages in the queue with timestamps
+            // earlier than the frame time, then the vsync event will be processed immediately.
+            // Otherwise, messages that predate the vsync event will be handled first.
+            ....
+
+            mTimestampNanos = timestampNanos;
+            mFrame = frame;
+            Message msg = Message.obtain(mHandler, this);
+            msg.setAsynchronous(true);
+            mHandler.sendMessageAtTime(msg, timestampNanos / TimeUtils.NANOS_PER_MS);
+        }
+
+           @Override
+           public void run() {
+               mHavePendingVsync = false;
+               doFrame(mTimestampNanos, mFrame); // MEMO  作为handler的 callback 执行
+           }
+
+        @UnsupportedAppUsage
+        void doFrame(long frameTimeNanos, int frame) {
+            final long startNanos;
+            synchronized (mLock) {
+                if (!mFrameScheduled) {  // MEMO 前面设置了true
+                    return; // no work to do
+                }
+
+                ...
+                mFrameScheduled = false; // MEMO  执行了doFrame 就会设置成false
+
+            try {
+                Trace.traceBegin(Trace.TRACE_TAG_VIEW, "Choreographer#doFrame");
+                AnimationUtils.lockAnimationClock(frameTimeNanos / TimeUtils.NANOS_PER_MS);
+
+                mFrameInfo.markInputHandlingStart();
+                doCallbacks(Choreographer.CALLBACK_INPUT, frameTimeNanos);
+
+                mFrameInfo.markAnimationsStart();
+                doCallbacks(Choreographer.CALLBACK_ANIMATION, frameTimeNanos);
+                doCallbacks(Choreographer.CALLBACK_INSETS_ANIMATION, frameTimeNanos);
+
+                mFrameInfo.markPerformTraversalsStart();
+                doCallbacks(Choreographer.CALLBACK_TRAVERSAL, frameTimeNanos); // MEMO  此次调用的方法
+
+                doCallbacks(Choreographer.CALLBACK_COMMIT, frameTimeNanos);
+            } finally {
+                AnimationUtils.unlockAnimationClock();
+                Trace.traceEnd(Trace.TRACE_TAG_VIEW);
+            }
+
+            ....
+        }
+
+
+
+
+        void doCallbacks(int callbackType, long frameTimeNanos) {
+             CallbackRecord callbacks;
+             synchronized (mLock) {
+                 // We use "now" to determine when callbacks become due because it's possible
+                 // for earlier processing phases in a frame to post callbacks that should run
+                 // in a following phase, such as an input event that causes an animation to start.
+                 final long now = System.nanoTime();
+                 callbacks = mCallbackQueues[callbackType].extractDueCallbacksLocked(
+                         now / TimeUtils.NANOS_PER_MS);
+                  ....
+             }
+             try {
+                 Trace.traceBegin(Trace.TRACE_TAG_VIEW, CALLBACK_TRACE_TITLES[callbackType]);
+                 for (CallbackRecord c = callbacks; c != null; c = c.next) {
+                     if (DEBUG_FRAMES) {
+                         Log.d(TAG, "RunCallback: type=" + callbackType
+                                 + ", action=" + c.action + ", token=" + c.token
+                                 + ", latencyMillis=" + (SystemClock.uptimeMillis() - c.dueTime));
+                     }
+                     c.run(frameTimeNanos);
+                 }
+             } finally {
+                     。。。。
+             }
+         }
+
+      这里的callback 就是之前 mChoreographer.postCallback(Choreographer.CALLBACK_TRAVERSAL, mTraversalRunnable, null);
+      存进去的 mTraversalRunnable
+
+  回到ViewRootImpl
+            final class TraversalRunnable implements Runnable {
+                @Override
+                public void run() {
+                    doTraversal();
+                }
+            }
+
+            后面就是 performTraversals(); 重新测量 布局 绘制了 （不一定都走）
+                【如果调用requestLayout mLayoutRequested 为true】
+
+            当应用层需要监听下一帧刷新时， 会主动调用 Choreographer 的callback
+
+            设定 mFrameScheduled 为true ， 以便收到VSync时能执行doFrame  执行后 mFrameScheduled 设置为false
+
+
+

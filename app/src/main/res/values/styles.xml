@@ -10,9 +10,9 @@
         <item name="windowNoTitle">true</item>
 
         <!--        是menu显示在actionBar的下方，使用?attr/actionBarSize也可以，但是位置上似乎有一点偏差-->
-<!--        <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>-->
-            <item name="overlapAnchor">false</item>
-            <item name="android:dropDownVerticalOffset">?attr/actionBarSize</item>
+        <!--        <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>-->
+        <item name="overlapAnchor">false</item>
+        <item name="android:dropDownVerticalOffset">?attr/actionBarSize</item>
 
     </style>
 

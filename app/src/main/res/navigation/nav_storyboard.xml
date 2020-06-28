@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_stroyboard"
+    app:startDestination="@id/homeFragment">
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.shakespace.advanceandroid.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_new_feature"
+            app:destination="@id/new_feature"
+            app:enterAnim="@anim/act_enter"
+            app:exitAnim="@anim/act_exit"
+            app:popEnterAnim="@anim/act_back_enter"
+            app:popExitAnim="@anim/act_back_exit" />
+        <action
+            android:id="@+id/action_homeFragment_to_material"
+            app:destination="@id/material" />
+        <action
+            android:id="@+id/action_homeFragment_to_material2"
+            app:destination="@id/material" />
+        <action
+            android:id="@+id/action_homeFragment_to_material3"
+            app:destination="@id/material" />
+        <action
+            android:id="@+id/action_homeFragment_to_material4"
+            app:destination="@id/material" />
+        <action
+            android:id="@+id/action_homeFragment_to_material5"
+            app:destination="@id/material" />
+        <action
+            android:id="@+id/action_homeFragment_to_material6"
+            app:destination="@id/material" />
+        <action
+            android:id="@+id/action_homeFragment_to_material7"
+            app:destination="@id/material" />
+        <action
+            android:id="@+id/action_homeFragment_to_material8"
+            app:destination="@id/material" />
+        <action
+            android:id="@+id/action_homeFragment_to_graph_03_view"
+            app:destination="@id/graph_03_view" />
+    </fragment>
+    <include app:graph="@navigation/graph_01_new_feature" />
+    <include app:graph="@navigation/graph_02_material" />
+    <include app:graph="@navigation/graph_03_view" />
+</navigation>

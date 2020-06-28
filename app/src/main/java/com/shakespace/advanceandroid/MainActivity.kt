@@ -2,6 +2,7 @@ package com.shakespace.advanceandroid
 
 import android.os.Build
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -36,5 +37,9 @@ class MainActivity : AppCompatActivity() {
             toolbar.visibility = View.GONE
             setSupportActionBar(tb)
         }
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        return super.onTouchEvent(event)
     }
 }
