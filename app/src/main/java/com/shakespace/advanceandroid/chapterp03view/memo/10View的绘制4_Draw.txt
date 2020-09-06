@@ -1,0 +1,129 @@
+
+
+performDraw()
+    onDraw()
+        drawSoftware(surface, mAttachInfo, xOffset, yOffset,scalingRequired, dirty, surfaceInsets)
+            mView.draw(canvas);
+            // MEMO  进入View 的draw方法
+
+
+1. 官方步骤
+            /*
+             * Draw traversal performs several drawing steps which must be executed
+             * in the appropriate order:
+             *
+             *      1. Draw the background  绘制背景，已计算偏移值
+             *      2. If necessary, save the canvas' layers to prepare for fading
+             *      3. Draw view's content
+             *      4. Draw children
+             *      5. If necessary, draw the fading edges and restore layers
+             *      6. Draw decorations (scrollbars for instance)
+             */
+
+2. onDraw 方法是空实现，由子类实现
+
+3. 绘制子View 调用dispatchDraw 方法，在View里是个空实现
+    在ViewGroup中，会调用drawChild  --- 调用 child.draw()  如果有缓存 利用缓存绘制， 没有缓存，正常绘制。
+
+   /**
+     * This method is called by ViewGroup.drawChild() to have each child view draw itself.
+     *
+     * This is where the View specializes rendering behavior based on layer type,
+     * and hardware acceleration.
+     */
+    boolean draw(Canvas canvas, ViewGroup parent, long drawingTime) {
+        // MEMO  处理硬件加速 和动画。。。。
+        final boolean hardwareAcceleratedCanvas = canvas.isHardwareAccelerated();
+        /* If an attached view draws to a HW canvas, it may use its RenderNode + DisplayList.
+         *
+         * If a view is dettached, its DisplayList shouldn't exist. If the canvas isn't
+         * HW accelerated, it can't handle drawing RenderNodes.
+         */
+        boolean drawingWithRenderNode = mAttachInfo != null
+                && mAttachInfo.mHardwareAccelerated
+                && hardwareAcceleratedCanvas;
+
+        boolean more = false;
+        final boolean childHasIdentityMatrix = hasIdentityMatrix();
+        final int parentFlags = parent.mGroupFlags;
+
+        if ((parentFlags & ViewGroup.FLAG_CLEAR_TRANSFORMATION) != 0) {
+            parent.getChildTransformation().clear();
+            parent.mGroupFlags &= ~ViewGroup.FLAG_CLEAR_TRANSFORMATION;
+        }
+
+        .....
+
+        if (hardwareAcceleratedCanvas) {
+            // Clear INVALIDATED flag to allow invalidation to occur during rendering, but
+            // retain the flag's value temporarily in the mRecreateDisplayList flag
+            mRecreateDisplayList = (mPrivateFlags & PFLAG_INVALIDATED) != 0;
+            mPrivateFlags &= ~PFLAG_INVALIDATED;
+        }
+        ....
+        //  MEMO  判断缓存， 有就通过缓存绘制
+        if (!drawingWithDrawingCache) {
+            if (drawingWithRenderNode) {
+                mPrivateFlags &= ~PFLAG_DIRTY_MASK;
+                ((RecordingCanvas) canvas).drawRenderNode(renderNode);
+            } else {
+                // Fast path for layouts with no backgrounds
+                if ((mPrivateFlags & PFLAG_SKIP_DRAW) == PFLAG_SKIP_DRAW) {
+                    mPrivateFlags &= ~PFLAG_DIRTY_MASK;
+                    dispatchDraw(canvas);
+                } else {
+                    draw(canvas);
+                }
+            }
+        } else if (cache != null) {
+            mPrivateFlags &= ~PFLAG_DIRTY_MASK;
+            if (layerType == LAYER_TYPE_NONE || mLayerPaint == null) {
+                // no layer paint, use temporary paint to draw bitmap
+                Paint cachePaint = parent.mCachePaint;
+                if (cachePaint == null) {
+                    cachePaint = new Paint();
+                    cachePaint.setDither(false);
+                    parent.mCachePaint = cachePaint;
+                }
+                cachePaint.setAlpha((int) (alpha * 255));
+                canvas.drawBitmap(cache, 0.0f, 0.0f, cachePaint);
+            } else {
+                // use layer paint to draw the bitmap, merging the two alphas, but also restore
+                int layerPaintAlpha = mLayerPaint.getAlpha();
+                if (alpha < 1) {
+                    mLayerPaint.setAlpha((int) (alpha * layerPaintAlpha));
+                }
+                canvas.drawBitmap(cache, 0.0f, 0.0f, mLayerPaint);
+                if (alpha < 1) {
+                    mLayerPaint.setAlpha(layerPaintAlpha);
+                }
+            }
+        }
+
+        if (restoreTo >= 0) {
+            canvas.restoreToCount(restoreTo); // MEMO  通过传入save的返回值 回到特定的保存点
+        }
+
+        if (a != null && !more) {
+            if (!hardwareAcceleratedCanvas && !a.getFillAfter()) {
+                onSetAlpha(255);
+            }
+            parent.finishAnimatingView(this, a);
+        }
+
+        if (more && hardwareAcceleratedCanvas) {
+            if (a.hasAlpha() && (mPrivateFlags & PFLAG_ALPHA_SET) == PFLAG_ALPHA_SET) {
+                // alpha animations should cause the child to recreate its display list
+                invalidate(true);
+            }
+        }
+
+        mRecreateDisplayList = false;
+
+        return more;
+    }
+
+
+4. 绘制装饰
+    onDrawForeground(canvas);
+    主要是绘制内容层上方的滚动条等。

@@ -1,0 +1,126 @@
+
+1. 在ViewRootImpl中
+       host.layout(0, 0, host.getMeasuredWidth(), host.getMeasuredHeight());
+
+       所以根布局从 0，0 开始，右下对应window宽高
+
+2. View.layout
+      public void layout(int l, int t, int r, int b) {
+            if ((mPrivateFlags3 & PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT) != 0) {
+                onMeasure(mOldWidthMeasureSpec, mOldHeightMeasureSpec);
+                mPrivateFlags3 &= ~PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT;
+            }
+
+            int oldL = mLeft;
+            int oldT = mTop;
+            int oldB = mBottom;
+            int oldR = mRight;
+
+            boolean changed = isLayoutModeOptical(mParent) ?
+                    setOpticalFrame(l, t, r, b) : setFrame(l, t, r, b);//  MEMO 通过 左上右下定位
+
+            if (changed || (mPrivateFlags & PFLAG_LAYOUT_REQUIRED) == PFLAG_LAYOUT_REQUIRED) {
+                onLayout(changed, l, t, r, b); // MEMO 由子类实现 ， View 和 ViewGroup 都没有直接实现
+              .....
+            }
+
+            ....
+        }
+
+
+3.  在 LinearLayout 中
+      @Override
+        protected void onLayout(boolean changed, int l, int t, int r, int b) {
+            if (mOrientation == VERTICAL) {
+                layoutVertical(l, t, r, b);
+            } else {
+                layoutHorizontal(l, t, r, b);
+            }
+        }
+
+        // MEMO  就是计算子view 左上右下的过程
+       void layoutVertical(int left, int top, int right, int bottom) {
+            final int paddingLeft = mPaddingLeft;
+
+            int childTop;
+            int childLeft;
+
+            // Where right end of child should go
+            final int width = right - left;
+            int childRight = width - mPaddingRight;
+
+            // Space available for child
+            int childSpace = width - paddingLeft - mPaddingRight;
+
+            final int count = getVirtualChildCount();
+
+            final int majorGravity = mGravity & Gravity.VERTICAL_GRAVITY_MASK;
+            final int minorGravity = mGravity & Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK;
+
+            switch (majorGravity) {
+               case Gravity.BOTTOM:
+                   // mTotalLength contains the padding already
+                   childTop = mPaddingTop + bottom - top - mTotalLength;
+                   break;
+
+                   // mTotalLength contains the padding already
+               case Gravity.CENTER_VERTICAL:
+                   childTop = mPaddingTop + (bottom - top - mTotalLength) / 2;
+                   break;
+
+               case Gravity.TOP:
+               default:
+                   childTop = mPaddingTop;
+                   break;
+            }
+
+            for (int i = 0; i < count; i++) {
+                final View child = getVirtualChildAt(i);
+                if (child == null) {
+                    childTop += measureNullChild(i);
+                } else if (child.getVisibility() != GONE) {
+                    final int childWidth = child.getMeasuredWidth();
+                    final int childHeight = child.getMeasuredHeight();
+
+                    final LinearLayout.LayoutParams lp =
+                            (LinearLayout.LayoutParams) child.getLayoutParams();
+
+                    int gravity = lp.gravity;
+                    if (gravity < 0) {
+                        gravity = minorGravity;
+                    }
+                    final int layoutDirection = getLayoutDirection();
+                    final int absoluteGravity = Gravity.getAbsoluteGravity(gravity, layoutDirection);
+                    switch (absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
+                        case Gravity.CENTER_HORIZONTAL:
+                            childLeft = paddingLeft + ((childSpace - childWidth) / 2)
+                                    + lp.leftMargin - lp.rightMargin;
+                            break;
+
+                        case Gravity.RIGHT:
+                            childLeft = childRight - childWidth - lp.rightMargin;
+                            break;
+
+                        case Gravity.LEFT:
+                        default:
+                            childLeft = paddingLeft + lp.leftMargin;
+                            break;
+                    }
+
+                    if (hasDividerBeforeChildAt(i)) {
+                        childTop += mDividerHeight;
+                    }
+
+                    childTop += lp.topMargin;
+                    setChildFrame(child, childLeft, childTop + getLocationOffset(child),
+                            childWidth, childHeight); //  MEMO  调用子类的 Layout
+                    childTop += childHeight + lp.bottomMargin + getNextLocationOffset(child);
+
+                    i += getChildrenSkipCount(child, i);
+                }
+            }
+        }
+
+            private void setChildFrame(View child, int left, int top, int width, int height) {
+                child.layout(left, top, left + width, top + height);
+            }

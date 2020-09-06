@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="45dp">
+
+    <!--   MEMO ratio的使用， 如果不写，默认都是 宽： 高-->
+    <!--    1、w:0dp-->
+    <!--    h:wrap_content/具体数值-->
+    <!--    此时默认是以h作为标准来约束w,"w,2:1"="2:1"都是宽:高=2:1,若此时你写"h,2:1"则代表高:宽=2:1；-->
+    <!--    2、w:wrap_content/具体数值-->
+    <!--    h:0dp-->
+    <!--    此时默认是以w作为标准来约束h,"h,2:1"="2:1"都是宽:高=2:1,若此时你写"w,2:1"则代表高:宽=2:1；-->
+    <!--    3、w:0dp-->
+    <!--    h:0dp-->
+    <!--    此时默认是以w作为标准来约束h,"h,2:1"="2:1"都是宽:高=2:1,若此时你写"w,2:1"则代表高:宽=2:1。-->
+
+    <ImageView
+        android:id="@+id/right_icon"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="h,1:2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <ImageView
+        android:id="@+id/left_icon"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="w,2:1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:text="Title"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/right_icon"
+        app:layout_constraintStart_toEndOf="@+id/left_icon"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+
+<!--    <ImageView-->
+<!--        android:layout_width="200dp"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:background="@color/rosybrown"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintDimensionRatio="3:1"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
+</androidx.constraintlayout.widget.ConstraintLayout>

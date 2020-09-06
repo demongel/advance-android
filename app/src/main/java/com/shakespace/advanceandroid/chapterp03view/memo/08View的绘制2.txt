@@ -1,0 +1,103 @@
+
+1. MeasureSpec
+    View 的内部类
+    最高两位是mode ，其他是size
+    mode有三种
+            public static final int UNSPECIFIED = 0 << MODE_SHIFT; 未指定，通常是系统内部的测量
+            public static final int EXACTLY     = 1 << MODE_SHIFT;  最大模式，对应wrap_content，子view的最终大小由父容器决定，子view最大不会 超过父容器。
+            public static final int AT_MOST     = 2 << MODE_SHIFT;  精确模式，对应match_parent或者精确值
+
+    MeasureSpec 是受自身 layoutParams 和 父容器的 MeasureSpec 共同决定的。
+    对于decorView, 没有父容器，由自身的 layoutParams 和 windowSize 决定
+
+
+2.    View 的 Measure
+
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+           setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),
+                   getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));
+       }
+
+
+                  public static int getDefaultSize(int size, int measureSpec) {
+                        int result = size;
+                        int specMode = MeasureSpec.getMode(measureSpec);
+                        int specSize = MeasureSpec.getSize(measureSpec);
+
+                        switch (specMode) {
+                        case MeasureSpec.UNSPECIFIED:
+                            result = size;
+                            break;
+                        case MeasureSpec.AT_MOST:
+                        case MeasureSpec.EXACTLY:
+                            result = specSize;
+                            break;
+                        }
+                        return result;
+                    }
+
+        // MEMO  建议最小宽高 和背景有关， 有背景，取背景宽高和最小宽高中的最大值，如果没有背景，就是最小宽高，这个可以在xml或者代码中设定，没有就是0
+        protected int getSuggestedMinimumHeight() {
+           return (mBackground == null) ? mMinHeight : max(mMinHeight, mBackground.getMinimumHeight());
+        }
+
+        // MEMO 通常我们的view都会是wrap_content或者数值或者match_parent，所以基本上 宽高 都是 int specSize = MeasureSpec.getSize(measureSpec)
+
+         在 getDefaultSize 中 case MeasureSpec.AT_MOST: case MeasureSpec.EXACTLY: 是一样的，所以正常来说，我们希望一个view支持wrap_content ，需要重写onMeasure
+         对wrap_content进行处理，简答的话，也可以使用resolveSize
+             @Override
+             protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+                 super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+                 int width = resolveSize(DEFAULT_VIEW_SIZE, widthMeasureSpec); // MEMO  default 就是在wrap_content时 期待的view的宽高值
+                 int height = resolveSize(DEFAULT_VIEW_SIZE, heightMeasureSpec);
+                 setMeasuredDimension(width, height);
+             }
+
+
+3. ViewGroup 的 Measure
+            protected void measureChildren(int widthMeasureSpec, int heightMeasureSpec) {
+                final int size = mChildrenCount;
+                final View[] children = mChildren;
+                for (int i = 0; i < size; ++i) {
+                    final View child = children[i];
+                    if ((child.mViewFlags & VISIBILITY_MASK) != GONE) {
+                        measureChild(child, widthMeasureSpec, heightMeasureSpec);
+                    }
+                }
+            }
+
+
+                protected void measureChild(View child, int parentWidthMeasureSpec,
+                        int parentHeightMeasureSpec) {
+                    final LayoutParams lp = child.getLayoutParams(); // MEMO 子元素的 layoutParams
+
+                    final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,
+                            mPaddingLeft + mPaddingRight, lp.width); // MEMO  父类的Spec 结合padding 子类的宽高 ， 来获得子类的 Spec
+                    final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,
+                            mPaddingTop + mPaddingBottom, lp.height);
+
+                    child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+                }
+
+         getChildMeasureSpec ， 重点关注父类是AT_MOST的情况
+         子类如果有宽高 ---  MeasureSpec.EXACTLY
+             如果是match_parent -- MeasureSpec.AT_MOST
+             如果是wrap_content -- MeasureSpec.AT_MOST
+         注意，两种情况下是一样的。因为当父类不确定宽高时，子类不可能是精确值。
+
+
+4. ViewGroup没有重写 onMeasure ， 因为ViewGroup经常有不同的布局需要，因为交给子类来完成
+
+        LinearLayout 里的 onMeasure
+      @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            if (mOrientation == VERTICAL) {
+                measureVertical(widthMeasureSpec, heightMeasureSpec);
+            } else {
+                measureHorizontal(widthMeasureSpec, heightMeasureSpec);
+            }
+        }
+
+        在measureVertical 或 measureHorizontal 中，会有一个变量用来记录宽高， 通过遍历子元素并根据元素可见性等进行计算
+
+
