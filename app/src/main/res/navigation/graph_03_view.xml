@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_viewFragment_to_animatorFragment"
             app:destination="@id/animatorFragment" />
+        <action
+            android:id="@+id/action_viewFragment_to_horizontalFragment"
+            app:destination="@id/horizontalFragment" />
     </fragment>
     <fragment
         android:id="@+id/viewMoveFragment"
@@ -26,4 +29,9 @@
         android:id="@+id/animatorFragment"
         android:name="com.shakespace.advanceandroid.chapterp03view.AnimatorFragment"
         android:label="AnimatorFragment" />
+    <fragment
+        android:id="@+id/horizontalFragment"
+        android:name="com.shakespace.advanceandroid.chapterp03view.HorizontalFragment"
+        android:label="fragment_horizontal"
+        tools:layout="@layout/fragment_horizontal" />
 </navigation>

@@ -31,17 +31,19 @@ class ViewFragment : Fragment() {
         tv_move.setOnClickListener {
             it.nav(R.id.action_viewFragment_to_viewMoveFragment)
         }
-        
+
         tv_move.setOnTouchListener { v, event ->
             Log.e(this.TAG, "onActivityCreated: ontouch ")
             false
         }
-        
+
         tv_animator.setOnClickListener {
             it.nav(R.id.action_viewFragment_to_animatorFragment)
         }
 
-
+        tv_horizontal.setOnClickListener {
+            it.nav(R.id.action_viewFragment_to_horizontalFragment)
+        }
     }
 
 }
