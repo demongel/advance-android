@@ -1,0 +1,19 @@
+
+val retrofit = Retrofit.Builder()
+.baseUrl(Constants.HOST_API)
+.addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+.addConverterFactory(GsonConverterFactory.create())
+.build()
+
+val remote = retrofit.create(PaoService::class.java)
+
+val database = AppDatabase.getInstance(applicationContext)
+val local= database.myDao()
+val repo = Repo(remote, local)
+val mViewModel = MyViewModel(repo)
+
+在ViewModel 需要 通过仓库来获取数据
+仓库 需要从 本地 或者 远程 获取数据
+
+本地需要 数据库 和 操作对应表的 dao
+远程需要 retrofit 和 具体的 Service
