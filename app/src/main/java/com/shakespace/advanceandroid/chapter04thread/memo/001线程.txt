@@ -1,0 +1,8 @@
+
+1. 线程状态
+    1. New              新创建，还没有调用start
+    2. Runnable         可运行，
+    3. Blocked          阻塞状态，暂时不活动
+    4. Waiting          等待状态
+    5. Timed Waiting    超时等待，到时间后会自动恢复
+    6. Terminated       终止状态

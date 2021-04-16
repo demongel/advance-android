@@ -1,0 +1,84 @@
+
+   /** The queued items */
+    final Object[] items;
+
+    /** items index for next take, poll, peek or remove */
+    int takeIndex;
+
+    /** items index for next put, offer, or add */
+    int putIndex;
+
+    /** Number of elements in the queue */
+    int count;
+
+    /** Main lock guarding all access */
+    final ReentrantLock lock;
+
+    /** Condition for waiting takes */
+    private final Condition notEmpty;
+
+    /** Condition for waiting puts */
+    private final Condition notFull;
+
+       /**
+         * Inserts element at current put position, advances, and signals.
+         * Call only when holding lock.
+         */
+        private void enqueue(E x) {
+            // assert lock.getHoldCount() == 1;
+            // assert items[putIndex] == null;
+            final Object[] items = this.items;
+            items[putIndex] = x;
+            if (++putIndex == items.length) putIndex = 0;
+            count++;
+            notEmpty.signal();
+        }
+
+        /**
+         * Extracts element at current take position, advances, and signals.
+         * Call only when holding lock.
+         */
+        private E dequeue() {
+            // assert lock.getHoldCount() == 1;
+            // assert items[takeIndex] != null;
+            final Object[] items = this.items;
+            @SuppressWarnings("unchecked")
+            E x = (E) items[takeIndex];
+            items[takeIndex] = null;
+            if (++takeIndex == items.length) takeIndex = 0;
+            count--;
+            if (itrs != null)
+                itrs.elementDequeued();
+            notFull.signal();
+            return x;
+        }
+
+
+       public void put(E e) throws InterruptedException {
+            Objects.requireNonNull(e);
+            final ReentrantLock lock = this.lock;
+            lock.lockInterruptibly();
+            try {
+                while (count == items.length)
+                    notFull.await();
+                enqueue(e);
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        public E take() throws InterruptedException {
+            final ReentrantLock lock = this.lock;
+            lock.lockInterruptibly();
+            try {
+                while (count == 0)
+                    notEmpty.await();
+                return dequeue();
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        put 放置元素，如果满了就等待 notFull信号 ，没有满就入队，入队 发出notEmpty 信号
+
+        take ，取出元素，如果空了，就等待notEmpty 信号，有值则取出，取出发出notFull信号

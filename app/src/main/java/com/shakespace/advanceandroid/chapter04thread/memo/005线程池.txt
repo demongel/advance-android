@@ -1,0 +1,141 @@
+
+线程池
+ public ThreadPoolExecutor(int corePoolSize,
+                              int maximumPoolSize,
+                              long keepAliveTime,
+                              TimeUnit unit,
+                              BlockingQueue<Runnable> workQueue,
+                              ThreadFactory threadFactory,
+                              RejectedExecutionHandler handler)
+
+
+    • corePoolSize： 核心线程数。 默认情况下线程池是空的， 只有任务提交时才会创建线程。 如果当前运
+    行的线程数少于corePoolSize， 则创建新线程来处理任务； 如果等于或者多于corePoolSize， 则不再创建。 如
+    果调用线程池的prestartAllcoreThread方法， 线程池会提前创建并启动所有的核心线程来等待任务。
+
+    • maximumPoolSize： 线程池允许创建的最大线程数。 如果任务队列满了并且线程数小于
+    maximumPoolSize时， 则线程池仍旧会创建新的线程来处理任务。
+
+    • keepAliveTime： 非核心线程闲置的超时时间。 超过这个时间则回收。 如果任务很多， 并且每个任务
+    的执行事件很短， 则可以调大keepAliveTime来提高线程的利用率。 另外， 如果设置
+    allowCoreThreadTimeOut属性为true时， keepAliveTime也会应用到核心线程上，
+
+    • TimeUnit： keepAliveTime参数的时间单位。 可选的单位有天（DAYS） 、 小时（HOURS） 、 分钟
+    （MINUTES） 、 秒（SECONDS） 、 毫秒（MILLISECONDS） 等。
+
+    • workQueue： 任务队列。 如果当前线程数大于corePoolSize， 则将任务添加到此任务队列中。 该任务
+    队列是BlockingQueue类型的， 也就是阻塞队列。
+
+    • ThreadFactory： 线程工厂。 可以用线程工厂给每个创建出来的线程设置名字。 一般情况下无须设置
+    该参数。
+
+    • RejectedExecutionHandler： 饱和策略。 这是当任务队列和线程池都满了时所采取的应对策略， 默认
+    是AbordPolicy， 表示无法处理新任务， 并抛出RejectedExecutionException异常。 此外还有3种策略， 它们分
+    别如下。
+    （1） CallerRunsPolicy： 用调用者所在的线程来处理任务。 此策略提供简单的反馈控制机制， 能够减缓
+    新任务的提交速度。
+    （2） DiscardPolicy： 不能执行的任务， 并将该任务删除。
+    （3） DiscardOldestPolicy： 丢弃队列最近的任务， 并执行当前的任务
+
+   处理流程
+    （1） 提交任务后， 线程池先判断线程数是否达到了核心线程数（corePoolSize） 。 如果未达到核心线程
+    数， 则创建核心线程处理任务； 否则， 就执行下一步操作。
+    （2） 接着线程池判断任务队列是否满了。 如果没满， 则将任务添加到任务队列中； 否则， 就执行下一
+    步操作。
+    （3） 接着因为任务队列满了， 线程池就判断线程数是否达到了最大线程数。 如果未达到， 则创建非核
+    心线程处理任务； 否则， 就执行饱和策略， 默认会抛出 RejectedExecutionException异常。
+
+    所以非核心线程只有当队列满了才 有可能 创建 。
+
+
+常见线程池
+1.FixedThreadPool 【固定线程数】
+     public static ExecutorService newFixedThreadPool(int nThreads) {
+            return new ThreadPoolExecutor(nThreads, nThreads,
+                                          0L, TimeUnit.MILLISECONDS,
+                                          new LinkedBlockingQueue<Runnable>());
+        }
+
+     FixedThreadPool的corePoolSize和maximumPoolSize都设置为创建FixedThreadPool指定的参数nThreads，
+     也就意味着FixedThreadPool只有核心线程， 并且数量是固定的，不会被回收， 没有非核心线程。 keepAliveTime设置为0L
+     意味着多余的线程会被立即终止。 因为不会产生多余的线程， 所以keepAliveTime是无效的参数。 另外， 任
+     务队列采用了无界的阻塞队列LinkedBlockingQueue。
+
+2.CachedThreadPool 【大量需要立即处理且耗时短的任务】
+    CachedThreadPool是一个根据需要创建线程的线程池
+    public static ExecutorService newCachedThreadPool() {
+        return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                      60L, TimeUnit.SECONDS,
+                                      new SynchronousQueue<Runnable>());
+    }
+
+    CachedThreadPool的corePoolSize为0， maximumPoolSize设置为Integer.MAX_VALUE， 这意味着
+    CachedThreadPool没有核心线程， 非核心线程是无界的。 keepAliveTime设置为60L， 则空闲线程等待新任务
+    的最长时间为 60s。 在此用了阻塞队列 SynchronousQueue， 它是一个不存储元素的阻塞队列， 每个插入操作
+    必须等待另一个线程的移除操作， 同样任何一个移除操作都等待另一个线程的插入操作
+
+    当执行execute方法时， 首先会执行SynchronousQueue的offer方法来提交任务， 并且查询线程池中是否
+    有空闲的线程执行SynchronousQueue的poll方法来移除任务。 如果有则配对成功， 将任务交给这个空闲的线
+    程处理； 如果没有则配对失败， 创建新的线程去处理任务。 当线程池中的线程空闲时， 它会执行
+    SynchronousQueue的poll方法， 等待SynchronousQueue中新提交的任务。 如果超过 60s 没有新任务提交到
+    SynchronousQueue， 则这个空闲线程将终止。 因为maximumPoolSize 是无界的， 所以如果提交的任务大于线
+    程池中线程处理任务的速度就会不断地创建新线程。 另外， 每次提交任务都会立即有线程去处理。 所以，
+    CachedThreadPool 比较适于大量的需要立即处理并且耗时较少的任务。
+
+3.SingleThreadExecutor 【确保都在同一个线程执行】
+    SingleThreadExecutor是使用单个工作线程的线程池
+    public static ExecutorService newSingleThreadExecutor() {
+        return new FinalizableDelegatedExecutorService
+            (new ThreadPoolExecutor(1, 1,
+                                    0L, TimeUnit.MILLISECONDS,
+                                    new LinkedBlockingQueue<Runnable>()));
+    }
+
+    corePoolSize和maximumPoolSize都为1， 意味着SingleThreadExecutor只有一个核心线程， 其他的参数都
+    和FixedThreadPool一样，
+
+    当执行execute方法时， 如果当前运行的线程数未达到核心线程数， 也就是当前没有运行的线程， 则创
+    建一个新线程来处理任务。 如果当前有运行的线程， 则将任务添加到阻塞队列LinkedBlockingQueue中。 因
+    此， SingleThreadExecutor能确保所有的任务在一个线程中按照顺序逐一执行。
+
+4.ScheduledThreadPool
+    ScheduledThreadPool是一个能实现定时和周期性任务的线程池，
+    public static ScheduledExecutorService newScheduledThreadPool(
+            int corePoolSize, ThreadFactory threadFactory) {
+        return new ScheduledThreadPoolExecutor(corePoolSize, threadFactory);
+    }
+
+    public ScheduledThreadPoolExecutor(int corePoolSize,
+                                       ThreadFactory threadFactory) {
+        super(corePoolSize, Integer.MAX_VALUE,
+              DEFAULT_KEEPALIVE_MILLIS, MILLISECONDS,
+              new DelayedWorkQueue(), threadFactory);
+    }
+
+    ScheduledThreadPoolExecutor 的构造方法最终调用的是ThreadPoolExecutor的
+    构造方法。 corePoolSize是传进来的固定数值， maximumPoolSize的值是Integer.MAX_VALUE。 因为采用的
+    DelayedWorkQueue是无界的， 所以maximumPoolSize这个参数是无效的。
+
+    当执行 ScheduledThreadPoolExecutor 的 scheduleAtFixedRate 或者 scheduleWithFixedDelay方法时， 会向
+    DelayedWorkQueue 添加一个 实现 RunnableScheduledFuture 接口的ScheduledFutureTask（任务的包装类） ，
+    并会检查运行的线程是否达到 corePoolSize。 如果没有则新建线程并启动它， 但并不是立即去执行任务， 而
+    是去 DelayedWorkQueue 中取ScheduledFutureTask， 然后去执行任务。 如果运行的线程达到了corePoolSize
+    时， 则将任务添加到DelayedWorkQueue中。 DelayedWorkQueue会将任务进行排序， 先要执行的任务放在队
+    列的前面。 其跟此前介绍的线程池不同的是， 当执行完任务后， 会将ScheduledFutureTask中的time变量改为
+    下次要执行的时间并放回到DelayedWorkQueue中。
+
+5. WorkStealingPool  使用分治处理大量数据的计算，计算量大的时候优势比较明显
+
+    public static ExecutorService newWorkStealingPool() {
+        return new ForkJoinPool
+            (Runtime.getRuntime().availableProcessors(),
+             ForkJoinPool.defaultForkJoinWorkerThreadFactory,
+             null, true);
+    }
+
+
+
+
+
+
+
