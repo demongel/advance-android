@@ -1,8 +1,7 @@
-package com.shakespace.advanceandroid.chapterp03view.custom
+package com.shakespace.advanceandroid.chapter03view.custom
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.MotionEvent
 import android.widget.Scroller
 import androidx.appcompat.widget.AppCompatTextView
 

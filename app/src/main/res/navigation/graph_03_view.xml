@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/viewFragment"
-        android:name="com.shakespace.advanceandroid.chapterp03view.ViewFragment"
+        android:name="com.shakespace.advanceandroid.chapter03view.ViewFragment"
         android:label="fragment_view"
         tools:layout="@layout/fragment_view" >
         <action
@@ -22,16 +22,16 @@
     </fragment>
     <fragment
         android:id="@+id/viewMoveFragment"
-        android:name="com.shakespace.advanceandroid.chapterp03view.ViewMoveFragment"
+        android:name="com.shakespace.advanceandroid.chapter03view.ViewMoveFragment"
         android:label="fragment_view_move"
         tools:layout="@layout/fragment_view_move" />
     <fragment
         android:id="@+id/animatorFragment"
-        android:name="com.shakespace.advanceandroid.chapterp03view.AnimatorFragment"
+        android:name="com.shakespace.advanceandroid.chapter03view.AnimatorFragment"
         android:label="AnimatorFragment" />
     <fragment
         android:id="@+id/horizontalFragment"
-        android:name="com.shakespace.advanceandroid.chapterp03view.HorizontalFragment"
+        android:name="com.shakespace.advanceandroid.chapter03view.HorizontalFragment"
         android:label="fragment_horizontal"
         tools:layout="@layout/fragment_horizontal" />
 </navigation>

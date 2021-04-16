@@ -1,12 +1,10 @@
-package com.shakespace.advanceandroid.chapterp03view.custom
+package com.shakespace.advanceandroid.chapter03view.custom
 
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.view.View
-import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
 import com.shakespace.advanceandroid.R
 import com.shakespace.advanceandroid.global.dpToPx

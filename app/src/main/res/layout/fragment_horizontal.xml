@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".chapterp03view.HorizontalFragment">
+    tools:context=".chapter03view.HorizontalFragment">
 
-    <com.shakespace.advanceandroid.chapterp03view.custom.HorizontalView
+    <com.shakespace.advanceandroid.chapter03view.custom.HorizontalView
         android:id="@+id/horizontal_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

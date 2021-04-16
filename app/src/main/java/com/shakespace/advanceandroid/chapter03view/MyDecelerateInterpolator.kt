@@ -1,4 +1,4 @@
-package com.shakespace.advanceandroid.chapterp03view
+package com.shakespace.advanceandroid.chapter03view
 
 import android.util.Log
 import android.view.animation.DecelerateInterpolator

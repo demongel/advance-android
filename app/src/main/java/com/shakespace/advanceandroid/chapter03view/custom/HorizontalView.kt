@@ -1,11 +1,6 @@
-package com.shakespace.advanceandroid.chapterp03view.custom
+package com.shakespace.advanceandroid.chapter03view.custom
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.drawable.Drawable
-import android.text.TextPaint
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
@@ -13,9 +8,7 @@ import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Scroller
-import com.shakespace.advanceandroid.R
 import com.shakespace.advanceandroid.global.TAG
-import kotlinx.android.synthetic.main.fragment_view_move.view.*
 import kotlin.math.abs
 
 /**

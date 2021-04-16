@@ -1,4 +1,4 @@
-package com.shakespace.advanceandroid.chapterp03view.custom
+package com.shakespace.advanceandroid.chapter03view.custom
 
 import android.content.Context
 import android.util.AttributeSet

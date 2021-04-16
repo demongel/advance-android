@@ -1,4 +1,4 @@
-package com.shakespace.advanceandroid.chapterp03view
+package com.shakespace.advanceandroid.chapter03view
 
 import android.os.Bundle
 import android.util.Log
@@ -10,7 +10,6 @@ import com.shakespace.advanceandroid.R
 import com.shakespace.advanceandroid.global.TAG
 import com.shakespace.advanceandroid.global.nav
 import kotlinx.android.synthetic.main.fragment_view.*
-import kotlinx.android.synthetic.main.fragment_view_move.*
 
 /**
  * A simple [Fragment] subclass.

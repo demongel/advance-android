@@ -88,4 +88,8 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$rootProject.coroutinesVersion"
     implementation 'androidx.palette:palette-ktx:1.0.0'
     implementation 'androidx.biometric:biometric:1.0.1'
+
+    testImplementation "junit:junit:$rootProject.junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$rootProject.runnerVersion"
+
 }

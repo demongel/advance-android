@@ -25,7 +25,7 @@
             style="@style/HomeTextViewStyle"
             android:text="以下是自定义View" />
 
-        <com.shakespace.advanceandroid.chapterp03view.custom.InvalidTextView
+        <com.shakespace.advanceandroid.chapter03view.custom.InvalidTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/azure"
@@ -34,7 +34,7 @@
             android:text="12"
             android:textSize="24sp" />
 
-        <com.shakespace.advanceandroid.chapterp03view.custom.TitleBar
+        <com.shakespace.advanceandroid.chapter03view.custom.TitleBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

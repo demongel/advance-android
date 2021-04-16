@@ -4,9 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".chapterp03view.ViewMoveFragment">
+    tools:context=".chapter03view.ViewMoveFragment">
 
-    <com.shakespace.advanceandroid.chapterp03view.custom.LayoutView
+    <com.shakespace.advanceandroid.chapter03view.custom.LayoutView
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_gravity="start"
@@ -14,7 +14,7 @@
         android:gravity="center"
         android:text="Layout" />
 
-    <com.shakespace.advanceandroid.chapterp03view.custom.OffsetView
+    <com.shakespace.advanceandroid.chapter03view.custom.OffsetView
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_gravity="end"
@@ -39,7 +39,7 @@
         android:text="这是一个很长的文本，一开始只能看到一部分，如果想看到右边的内容，就向右滚动一定距离，画布整体向右移动，看起来像内容往左边移动" />
 
 
-    <com.shakespace.advanceandroid.chapterp03view.custom.MyScrollView
+    <com.shakespace.advanceandroid.chapter03view.custom.MyScrollView
         android:id="@+id/my_scroll_view"
         android:layout_width="1000dp"
         android:layout_height="50dp"
@@ -47,7 +47,7 @@
         android:gravity="center"
         android:text="这也是一个很长的文本，一开始只能看到一部分，如果想看到右边的内容，就向右滚动一定距离，画布整体向右移动，看起来像内容往左边移动" />
 
-    <com.shakespace.advanceandroid.chapterp03view.custom.MyScrollTextView
+    <com.shakespace.advanceandroid.chapter03view.custom.MyScrollTextView
         android:id="@+id/my_scroll_text_view"
         android:layout_width="1000dp"
         android:layout_height="50dp"

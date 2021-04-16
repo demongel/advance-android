@@ -1,4 +1,4 @@
-package com.shakespace.advanceandroid.chapterp03view
+package com.shakespace.advanceandroid.chapter03view
 
 import android.animation.ObjectAnimator
 import android.os.Bundle
@@ -7,7 +7,6 @@ import android.view.*
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import android.widget.LinearLayout
-import android.widget.Scroller
 import androidx.fragment.app.Fragment
 import com.shakespace.advanceandroid.R
 import com.shakespace.advanceandroid.global.TAG

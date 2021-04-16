@@ -1,15 +1,13 @@
-package com.shakespace.advanceandroid.chapterp03view.custom
+package com.shakespace.advanceandroid.chapter03view.custom
 
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
-import android.view.VelocityTracker
 import android.widget.Scroller
 import androidx.appcompat.widget.AppCompatTextView
 import com.shakespace.advanceandroid.global.TAG
-import com.shakespace.advanceandroid.global.dp2px
 
 /**
  * created by  shakespace
