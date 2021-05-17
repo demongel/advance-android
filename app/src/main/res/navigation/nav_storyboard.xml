@@ -43,8 +43,16 @@
         <action
             android:id="@+id/action_homeFragment_to_graph_03_view"
             app:destination="@id/graph_03_view" />
+        <action
+            android:id="@+id/action_homeFragment_to_biometricFragment"
+            app:destination="@id/biometricFragment" />
     </fragment>
     <include app:graph="@navigation/graph_01_new_feature" />
     <include app:graph="@navigation/graph_02_material" />
     <include app:graph="@navigation/graph_03_view" />
+    <fragment
+        android:id="@+id/biometricFragment"
+        android:name="com.shakespace.advanceandroid.biometric.BiometricFragment"
+        android:label="fragment_biometric"
+        tools:layout="@layout/fragment_biometric" />
 </navigation>

@@ -39,6 +39,10 @@ class HomeFragment : Fragment() {
         tv_chapter03.setOnClickListener {
             it.nav(R.id.action_homeFragment_to_graph_03_view)
         }
+
+        tv_biometric.setOnClickListener {
+            it.nav(R.id.action_homeFragment_to_biometricFragment)
+        }
     }
 
 

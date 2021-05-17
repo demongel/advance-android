@@ -4,21 +4,21 @@ buildscript {
     // Define versions in a single place
     ext {
         // Sdk and tools
-        compileSdkVersion = 29
+        compileSdkVersion = 30
         minSdkVersion = 19
-        targetSdkVersion = 29
+        targetSdkVersion = 30
 
         kotlinVersion = '1.4.20'
 
         // App dependencies
-        appCompatVersion = '1.1.0'
-        constraintLayoutVersion = '2.0.0-beta6'
+        appCompatVersion = '1.2.0'
+        constraintLayoutVersion = '2.0.4'
         coreTestingVersion = '2.0.0'
-        coroutinesVersion = "1.3.0-M2"
+        coroutinesVersion = "1.3.2"
         espressoVersion = '3.1.1'
         fragmentVersion = '1.2.4'
         glideVersion = '4.10.0'
-        gsonVersion = '2.8.2'
+        gsonVersion = '2.8.6'
         junitVersion = '4.12'
         ktlintVersion = '0.33.0'
         ktxVersion = '1.2.0'
@@ -38,7 +38,7 @@ buildscript {
         multidexVersion = '2.0.1'
         reflectVersion = '1.3.50'
 
-        retrofitVersion = '2.6.1'
+        retrofitVersion = '2.9.0'
         converterScalarsVersion = '2.5.0'
         rxKotlin = '2.4.0'
         rxAndroid = '2.1.1'

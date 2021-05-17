@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-<!--        <androidx.appcompat.widget.Toolbar-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="?attr/actionBarSize"-->
-<!--            app:title="AdvanceAndroid"-->
-<!--            app:titleTextColor="@color/white"-->
-<!--            android:background="@color/colorPrimary"-->
-<!--            />-->
+        <!--        <androidx.appcompat.widget.Toolbar-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="?attr/actionBarSize"-->
+        <!--            app:title="AdvanceAndroid"-->
+        <!--            app:titleTextColor="@color/white"-->
+        <!--            android:background="@color/colorPrimary"-->
+        <!--            />-->
 
         <TextView
             android:id="@+id/tv_chapter01"
@@ -31,6 +31,11 @@
             android:id="@+id/tv_chapter03"
             style="@style/HomeTextViewStyle"
             android:text="03 View" />
+
+        <TextView
+            android:id="@+id/tv_biometric"
+            style="@style/HomeTextViewStyle"
+            android:text="Biometric" />
 
 
     </LinearLayout>
