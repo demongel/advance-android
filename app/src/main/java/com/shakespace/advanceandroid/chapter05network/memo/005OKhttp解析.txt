@@ -1,0 +1,161 @@
+
+1. OKHttp 初始化
+        public Builder() {
+          dispatcher = new Dispatcher();
+          protocols = DEFAULT_PROTOCOLS;
+          connectionSpecs = DEFAULT_CONNECTION_SPECS;
+          eventListenerFactory = EventListener.factory(EventListener.NONE);
+          proxySelector = ProxySelector.getDefault();
+          if (proxySelector == null) {
+            proxySelector = new NullProxySelector();
+          }
+          cookieJar = CookieJar.NO_COOKIES;
+          socketFactory = SocketFactory.getDefault();
+          hostnameVerifier = OkHostnameVerifier.INSTANCE;
+          certificatePinner = CertificatePinner.DEFAULT;
+          proxyAuthenticator = Authenticator.NONE;
+          authenticator = Authenticator.NONE;
+          connectionPool = new ConnectionPool();
+          dns = Dns.SYSTEM;
+          followSslRedirects = true;
+          followRedirects = true;
+          retryOnConnectionFailure = true;
+          callTimeout = 0;
+          connectTimeout = 10_000;
+          readTimeout = 10_000;
+          writeTimeout = 10_000;
+          pingInterval = 0;
+        }
+
+2. Call
+  @Override public Call newCall(Request request) {
+    return RealCall.newRealCall(this, request, false /* for web socket */);
+  }
+
+
+  static RealCall newRealCall(OkHttpClient client, Request originalRequest, boolean forWebSocket) {
+    // Safely publish the Call instance to the EventListener.
+    RealCall call = new RealCall(client, originalRequest, forWebSocket);
+    call.transmitter = new Transmitter(client, call);
+    return call;
+  }
+
+
+    @Override public void enqueue(Callback responseCallback) {
+      synchronized (this) {
+        if (executed) throw new IllegalStateException("Already Executed");
+        executed = true;
+      }
+      transmitter.callStart();
+      //Dispatcher有两个构造方法， 可以使用自己设定的线程池。 如果没有设定线程池， 则会在请求网络前自
+       // 己创建默认线程池。
+      client.dispatcher().enqueue(new AsyncCall(responseCallback));
+    }
+
+  void enqueue(AsyncCall call) {
+    synchronized (this) {
+      readyAsyncCalls.add(call);
+
+      // Mutate the AsyncCall so that it shares the AtomicInteger of an existing running call to
+      // the same host.
+      if (!call.get().forWebSocket) {
+        AsyncCall existingCall = findExistingCallWithHost(call.host());
+        if (existingCall != null) call.reuseCallsPerHostFrom(existingCall);
+      }
+    }
+    promoteAndExecute();
+  }
+
+
+    private boolean promoteAndExecute() {
+    //正在运行的异步请求队列中的数量小于64并且正在运行的请求主机数小于5时， 把请求加载到
+    //runningAsyncCalls中并在线程池中执行， 否则就加入到readyAsyncCalls中进行缓存等待。
+       .....
+      for (int i = 0, size = executableCalls.size(); i < size; i++) {
+        AsyncCall asyncCall = executableCalls.get(i);
+        asyncCall.executeOn(executorService());
+      }
+      return isRunning;
+    }
+
+3. AsyncCall 是    RealCall 的内部类
+execute在 父类run方法中调用
+
+    @Override protected void execute() {
+      boolean signalledCallback = false;
+      transmitter.timeoutEnter();
+      try {
+        Response response = getResponseWithInterceptorChain();
+        signalledCallback = true;
+        responseCallback.onResponse(RealCall.this, response);
+      } catch (IOException e) {
+        if (signalledCallback) {
+          // Do not signal the callback twice!
+          Platform.get().log(INFO, "Callback failure for " + toLoggableString(), e);
+        } else {
+          responseCallback.onFailure(RealCall.this, e);
+        }
+      } catch (Throwable t) {
+        cancel();
+        if (!signalledCallback) {
+          IOException canceledException = new IOException("canceled due to " + t);
+          canceledException.addSuppressed(t);
+          responseCallback.onFailure(RealCall.this, canceledException);
+        }
+        throw t;
+      } finally {
+      // 移除 然后执行下一个
+        client.dispatcher().finished(this);
+      }
+    }
+
+
+  private <T> void finished(Deque<T> calls, T call) {
+    Runnable idleCallback;
+    synchronized (this) {
+      if (!calls.remove(call)) throw new AssertionError("Call wasn't in-flight!");
+      idleCallback = this.idleCallback;
+    }
+
+    boolean isRunning = promoteAndExecute();// 执行下一个
+
+    if (!isRunning && idleCallback != null) {
+      idleCallback.run();
+    }
+  }
+
+
+    Response getResponseWithInterceptorChain() throws IOException {
+      // Build a full stack of interceptors.
+      List<Interceptor> interceptors = new ArrayList<>();
+      interceptors.addAll(client.interceptors());
+      interceptors.add(new RetryAndFollowUpInterceptor(client));
+      interceptors.add(new BridgeInterceptor(client.cookieJar()));
+      interceptors.add(new CacheInterceptor(client.internalCache()));
+      interceptors.add(new ConnectInterceptor(client));
+      if (!forWebSocket) {
+        interceptors.addAll(client.networkInterceptors());
+      }
+      interceptors.add(new CallServerInterceptor(forWebSocket));
+
+      Interceptor.Chain chain = new RealInterceptorChain(interceptors, transmitter, null, 0,
+          originalRequest, this, client.connectTimeoutMillis(),
+          client.readTimeoutMillis(), client.writeTimeoutMillis());
+
+      boolean calledNoMoreExchanges = false;
+      try {
+        Response response = chain.proceed(originalRequest);
+        if (transmitter.isCanceled()) {
+          closeQuietly(response);
+          throw new IOException("Canceled");
+        }
+        return response;
+      } catch (IOException e) {
+        calledNoMoreExchanges = true;
+        throw transmitter.noMoreExchanges(e);
+      } finally {
+        if (!calledNoMoreExchanges) {
+          transmitter.noMoreExchanges(null);
+        }
+      }
+    }

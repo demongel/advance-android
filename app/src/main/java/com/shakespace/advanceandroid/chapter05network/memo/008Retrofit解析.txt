@@ -1,0 +1,166 @@
+
+1. 不同平台的线程池
+      private static Platform findPlatform() {
+        return "Dalvik".equals(System.getProperty("java.vm.name"))
+            ? new Android() //
+            : new Platform(true);
+      }
+      线程池、convertFactory 等都与platform有关
+
+2. 必须要有BaseUrl
+        public Retrofit build() {
+          if (baseUrl == null) {
+            throw new IllegalStateException("Base URL required.");
+          }
+
+       private final List<Converter.Factory> converterFactories = new ArrayList<>();
+       private final List<CallAdapter.Factory> callAdapterFactories = new ArrayList<>();
+
+3. create方法返回了一个代理对象，动态生成
+
+    当我们调用IpService的
+    getIpMsg方法时， 最终会调用InvocationHandler的invoke方法
+
+    会先检查缓存，如果有直接使用缓存调用，没有则创建，并将当前的存起来
+
+      ServiceMethod<?> loadServiceMethod(Method method) {
+        ServiceMethod<?> result = serviceMethodCache.get(method);
+        if (result != null) return result;
+
+        synchronized (serviceMethodCache) {
+          result = serviceMethodCache.get(method);
+          if (result == null) {
+            result = ServiceMethod.parseAnnotations(this, method);
+            serviceMethodCache.put(method, result);
+          }
+        }
+        return result;
+      }
+
+  static <T> ServiceMethod<T> parseAnnotations(Retrofit retrofit, Method method) {
+    RequestFactory requestFactory = RequestFactory.parseAnnotations(retrofit, method);
+
+    Type returnType = method.getGenericReturnType();
+    if (Utils.hasUnresolvableType(returnType)) {
+      throw methodError(
+          method,
+          "Method return type must not include a type variable or wildcard: %s",
+          returnType);
+    }
+    if (returnType == void.class) {
+      throw methodError(method, "Service methods cannot return void.");
+    }
+
+    return HttpServiceMethod.parseAnnotations(retrofit, method, requestFactory);
+  }
+
+
+  static RequestFactory parseAnnotations(Retrofit retrofit, Method method) {
+    return new Builder(retrofit, method).build();
+  }
+
+4. HttpServiceMethod.parseAnnotations
+    加入了suspend方法的判断
+    if (isKotlinSuspendFunction) {
+         // 根据条件设置 flag
+         continuationWantsResponse = true;
+    }
+
+ // 寻找合适的callAdapter
+    for (int i = start, count = callAdapterFactories.size(); i < count; i++) {
+      CallAdapter<?, ?> adapter = callAdapterFactories.get(i).get(returnType, annotations, this);
+      if (adapter != null) {
+        return adapter;
+      }
+    }
+
+        // callAdapterFactories 包含添加的各种factory
+            DefaultCallAdapterFactory
+            RxJava2CallAdapterFactory
+
+    // 同样找到合适的converter
+        for (int i = start, count = converterFactories.size(); i < count; i++) {
+          Converter<ResponseBody, ?> converter =
+              converterFactories.get(i).responseBodyConverter(type, annotations, this);
+          if (converter != null) {
+            //noinspection unchecked
+            return (Converter<ResponseBody, T>) converter;
+          }
+        }
+
+    //converterFactories 包含各种添加的covertFactory
+        GsonConverterFactory
+
+    如果不是suspend方法 ，创建一个CallAdapted 对象
+    创建一个CallAdapted 继承 HttpServiceMethod ，HttpServiceMethod 继承自ServiceMethod，就是用来执行invoke的对象
+     if (!isKotlinSuspendFunction) {
+          return new CallAdapted<>(requestFactory, callFactory, responseConverter, callAdapter);
+        } else if (continuationWantsResponse) {
+          //noinspection unchecked Kotlin compiler guarantees ReturnT to be Object.
+          return (HttpServiceMethod<ResponseT, ReturnT>)
+              new SuspendForResponse<>(
+                  requestFactory,
+                  callFactory,
+                  responseConverter,
+                  (CallAdapter<ResponseT, Call<ResponseT>>) callAdapter);
+        } else {
+          //noinspection unchecked Kotlin compiler guarantees ReturnT to be Object.
+          return (HttpServiceMethod<ResponseT, ReturnT>)
+              new SuspendForBody<>(
+                  requestFactory,
+                  callFactory,
+                  responseConverter,
+                  (CallAdapter<ResponseT, Call<ResponseT>>) callAdapter,
+                  continuationBodyNullable);
+        }
+
+      ServiceMethod 有个invoke方法，在 HttpServiceMethod 实现如下：
+      @Override
+      final @Nullable ReturnT invoke(Object[] args) {
+        Call<ResponseT> call = new OkHttpCall<>(requestFactory, args, callFactory, responseConverter);
+        return adapt(call, args);
+      }
+
+    再执行 CallAdapted 中的adapt方法
+        @Override
+        protected ReturnT adapt(Call<ResponseT> call, Object[] args) {
+          return callAdapter.adapt(call);
+        }
+
+        这里的adapter是上面  return new CallAdapted<>(requestFactory, callFactory, responseConverter, callAdapter); 的adapter
+        也就是从 callAdapterFactories 找到的adapter
+
+     如果是DefaultCallAdapterFactory
+            有一个匿名类，
+             public Call<Object> adapt(Call<Object> call) {
+                         return (Call)(executor == null ? call : new DefaultCallAdapterFactory.ExecutorCallbackCall(executor, call));
+                     }
+     这里的call 是HttpServiceMethod invoke方法里创建的 OkHttpCall
+       Call<ResponseT> call = new OkHttpCall<>(requestFactory, args, callFactory, responseConverter);
+
+5. 调用enqueue 就会进入 OKHttpCall的流程
+
+6. 如果RxJava, 参考 CallEnqueueObservable
+
+      @Override
+      protected void subscribeActual(Observer<? super Response<T>> observer) {
+        // Since Call is a one-shot type, clone it for each new observer.
+        Call<T> call = originalCall.clone();
+        CallCallback<T> callback = new CallCallback<>(call, observer);
+        observer.onSubscribe(callback);
+        if (!callback.isDisposed()) {
+          call.enqueue(callback);
+        }
+      }
+
+7. 在OKHttpCall 里会执行一个parseResponse的操作 这里的responseConverter 是在HttpServiceMethod 中 parseAnnotations 里拿到的那个converter
+     ExceptionCatchingResponseBody catchingBody = new ExceptionCatchingResponseBody(rawBody);
+        try {
+          T body = responseConverter.convert(catchingBody);
+          return Response.success(body, rawResponse);
+        } catch (RuntimeException e) {
+          // If the underlying source threw an exception, propagate that rather than indicating it was
+          // a runtime exception.
+          catchingBody.throwIfCaught();
+          throw e;
+        }

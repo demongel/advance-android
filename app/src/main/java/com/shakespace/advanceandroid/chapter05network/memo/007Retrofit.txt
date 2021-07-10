@@ -1,0 +1,15 @@
+
+1. .Retrofit的注解分类 （3.9.0一共有25种）
+   Retrofit与其他请求框架不同的是， 它使用了注解。
+   Retrofit的注解分为三大类， 分别是HTTP请求方法注解、 标记类注解和参数类注解。
+
+   HTTP请求方法注解有8种， 它们是GET、 POST、 PUT、 DELETE、 HEAD、 PATCH、 OPTIONS和HTTP。 其前7种分别对应HTTP的请求方法； HTTP 则可以替换以上 7 种， 也
+   可以扩展请求方法。
+
+   标记类注解有 3 种， 它们是FormUrlEncoded、 Multipart、 Streaming。
+        Streaming代表响应的数据以流的形式返回， 如果不使用它， 则默认会把全部数据加载到内存， 所以下载大文件时需要加上这个注解。
+        Multipart 多个上传
+        FormUrlEncoded  表单请求
+
+   参数类注解有Header、 Headers、 Body、 Path、 Field、 FieldMap、 Part、 PartMap、 Query和QueryMap等， 。
+    HeaderMap、QueryName、TAG、Url

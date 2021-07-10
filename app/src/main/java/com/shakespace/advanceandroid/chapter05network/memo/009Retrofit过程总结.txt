@@ -1,0 +1,30 @@
+1. retrofit创建
+
+    this.callFactory = callFactory;
+    this.baseUrl = baseUrl;
+    this.converterFactories = converterFactories; // Copy+unmodifiable at call site.
+    this.callAdapterFactories = callAdapterFactories; // Copy+unmodifiable at call site.
+    this.callbackExecutor = callbackExecutor;
+    this.validateEagerly = validateEagerly;
+
+ 拿到对应平台的线程池，配置baseurl callfactory等参数
+ 默认的callFactory 就是OKHttpClient
+
+ 2.  create方法
+    create方法返回的是一个 Proxy.newProxyInstance 动态代理对象
+
+    当这个对象调用方法是就会执行 loadServiceMethod(method).invoke(args);
+        执行返回的结果就是定义的接口的返回值
+
+ 3.loadServiceMethod(method) 拿到的是解析过后的方法，默认拿到一个CallAdapted 对象
+    包含requestFactory, callFactory, responseConverter, callAdapter
+        CallAdapted 继承 HttpServiceMethod ，HttpServiceMethod 继承自ServiceMethod
+
+ 4. invoke(args) 返回 Call 对象，即OKHttpCall
+    如果rx，就是对应的可观察对象
+
+ 5. 无论是哪种形式，最终都会调用Call enqueue 去执行，在parseResponse拿到转换的结果，执行定义的callback或者订阅方法
+
+
+
+

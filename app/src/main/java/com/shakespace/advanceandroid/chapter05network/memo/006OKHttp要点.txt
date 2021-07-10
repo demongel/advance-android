@@ -1,0 +1,6 @@
+
+1. 记录Call的队列是 ArrayDeque
+    private final Deque<RealCall> runningSyncCalls = new ArrayDeque<>();
+
+    ArrayDeque 底层循环数组实现，不容置疑，查询效率肯定高于 LinkedList。
+    循环数组不会存在删除数据后需要挪动后面的数据。所以摒弃了 数组 删除效率慢的问题

@@ -1,0 +1,142 @@
+
+      interceptors.add(new RetryAndFollowUpInterceptor(client));
+      interceptors.add(new BridgeInterceptor(client.cookieJar()));
+      interceptors.add(new CacheInterceptor(client.internalCache()));
+      interceptors.add(new ConnectInterceptor(client));
+      if (!forWebSocket) {
+        interceptors.addAll(client.networkInterceptors());
+      }
+      interceptors.add(new CallServerInterceptor(forWebSocket));
+
+ 1. 重试与重定向
+    如果响应中拿到错误，判断是否进行recover（进行重连），如果需要，则重连
+
+    retry 次数
+    /**
+       * How many redirects and auth challenges should we attempt? Chrome follows 21 redirects; Firefox,
+       * curl, and wget follow 20; Safari follows 16; and HTTP/1.0 recommends 5.
+       */
+      private static final int MAX_FOLLOW_UPS = 20;
+
+ 2. 桥接
+    添加请求头，完善请求
+ 3. 缓存拦截器 （默认为null  需要自行配置）
+    不进行网络请求并且缓存不存在或者过期，返回504
+    不进行网络请求且缓存可用，返回缓存
+
+    读取响应时，如果要求读取缓存（304 或者 通过ETag），则检查缓存， 构造response 返回，并更新缓存
+
+ 4. 链接拦截器  -- 》 主要作用就是创建连接
+    //1、新建一个Exchange Exchange负责从创建的连接的IO流中写入请求和读取响应，完成一次请求/响应的过程
+    Exchange exchange = transmitter.newExchange(chain, doExtensiveHealthChecks);
+
+    ExchangeFinder对象早在RetryAndFollowUpInterceptor中通过Transmitter的prepareToConnect方法创建，
+    它的find方法是连接真正创建的地方，ExchangeFinder是什么？ExchangeFinder就是负责连接的创建，
+    把创建好的连接放入连接池，如果连接池中已经有该连接，就直接取出复用，
+    所以ExchangeFinder管理着两个重要的角色：RealConnection、RealConnectionPool，
+
+    RealConnection： 链接实现， 内部主要用Socket 实现连接
+    RealConnectionPool : 连接池
+    RealConnectionPool 在内部维护了一个线程池，用来执行清理连接任务cleanupRunnable，还维护了一个双端队列connections，用来缓存已经创建的连接。
+    创建一次连接要经历TCP握手，如果是HTTPS还要经历TLS握手，握手的过程都是耗时的，所以为了提高效率，就需要connections来对连接进行缓存，从而可以复用；
+    还有如果连接使用完毕，长时间不释放，也会造成资源的浪费，所以就需要cleanupRunnable定时清理无用的连接，okhttp支持5个并发连接，默认每个连接keepAlive为5分钟，
+    keepAlive就是连接空闲后，保持存活的时间
+
+ 5. 请求拦截器
+     写入请求， 读取响应
+
+
+ 拦截器的基本逻辑
+    Request request = realChain.request(); //拿到reques
+    // 处理request， 自己完成
+    // 拿到response
+     response = realChain.proceed（）
+    // 处理response , 自己完成
+    // 返回response
+
+关于缓存拦截器：
+    缓存策略
+        CacheStrategy是通过工厂模式创建的，它有两个主要的成员变量：networkRequest、cacheResponse，
+        CacheInterceptor的intercept方法通过CacheStrategy的networkRequest和cacheResponse的组合来判断执行什么策略，
+        networkRequest是否为空决定是否请求网络，
+        cacheResponse是否为空决定是否使用缓存，
+        networkRequest和cacheResponse的4种组合和对应的缓存策略如下：
+
+        networkRequest为null且cacheResponse为null：没有缓存使用，又不进行网络请求，构造状态码为504的Response
+        networkRequest为null但cacheResponse不为null：有缓存使用，且缓存在有效期内，所以直接返回缓存的Response
+        networkRequest不为null且cacheResponse不为null：有缓存使用，但缓存在客户端的判断中表示过期了，所以请求服务器进行决策，来决定是否使用缓存的Response
+        networkRequest不为null但cacheResponse为null：没有缓存使用，所以直接使用服务器返回的Response
+
+    CacheStrategy通过Factory的getCandidate方法创建
+        1. 没有response缓存，直接进行网络请求
+        2. 如果TLS 握手信息丢失，直接进行网络请求
+        3. 根据response状态码，判断缓存是否可用，不可用直接进行网络请求
+        4. 根据request的cache-control中的noCache和header 是否设置 If-Modified-Since/If-None-match
+        判断是否使用缓存， 如不使用，则进行网络请求
+        5. 如以上均未执行，说明缓存可用。读取缓存的相关信息【时长等】
+        6. 判断缓存是否过期，如果没有过期，则使用改缓存
+        7. 如果过期，判断Etag或Last-Modified 等标记，如果没有，直接进行网络请求
+        8. 如果有相关标记，构造请求头，交给服务器判断
+
+
+     从getCandidate方法中我们可以看到HTTP的缓存策略分为两种：
+
+     强制缓存：客户端参与决策决定是否继续使用缓存，客户端第一次请求数据时，
+     服务端返回了缓存的过期时间：Expires或Cache-Control，当客户端再次请求时，
+     就判断缓存的过期时间，没有过期就可以继续使用缓存，否则就不使用，重新请求服务端。
+
+     对比缓存：服务端参与决策决定是否继续使用缓存，客户端第一次请求数据时，
+     服务端会将缓存标识：Last-Modified/If-Modified-Since、Etag/If-None-Match和数据一起返回给客户端 ，
+     当客户端再次请求时，客户端将缓存标识发送给服务端，服务端根据缓存标识进行判断，
+     如果缓存还没有更新，可以使用，则返回304，表示客户端可以继续使用缓存，否则客户端不能继续使用缓存，
+     只能使用服务器返回的新的响应。
+
+     强制缓存优先于对比缓存
+
+关于链接拦截器
+    1、首先遍历所有连接，记录空闲连接数idleConnectionCount和正在使用连接数inUseConnectionCount，在记录空闲连接数时，还要找出空闲时间最长的空闲连接longestIdleConnection，这个连接是很有可能被清理的；
+
+    2、遍历完后，根据最大空闲时长和最大空闲连接数来决定是否清理longestIdleConnection，
+
+    ​ 2.1、如果longestIdleConnection的空闲时间大于最大空闲时长 或 空闲连接数大于最大空闲连接数，那么该连接就会被从队列中移除，然后关闭该连接的socket，返回0，立即再次进行清理；
+
+    ​ 2.2、如果空闲连接数小于5个 并且 longestIdleConnection的空闲时间小于最大空闲时长即还没到期清理，那么返回该连接的到期时间，下次再清理；
+
+    ​ 2.3、如果没有空闲连接 且 所有连接都还在使用，那么返回默认的keepAlive时间，5分钟后再清理；
+
+    ​ 2.4、没有任何连接，idleConnectionCount和inUseConnectionCount都为0，把cleanupRunning复位，等待下一次put连接时，再次使用线程池执行cleanupRunnable。
+
+
+    ExchangeFinder的find方法会调用findHealthyConnection方法，里面会不断调用findConnection方法，直到找到一个可用的连接返回
+
+Transmitter中的连接和连接池中的连接有什么区别？
+每创建一个Call，就会创建一个对应的Transmitter，一个Call可以发起多次请求（同步、异步），
+不同的Call有不同的Transmitter，连接池是在创建OkhttpClient时创建的，
+所以连接池是所有Call共享的，即连接池中的连接所有Call都可以复用，而Transmitter中的那个连接只是对应它相应的Call，只能被本次Call的所有请求复用。
+
+请求拦截器
+    CallServerInterceptor的intercept(Chain)方法逻辑就是把请求发送到服务器，然后获取服务器的响应，如下：
+
+    1、发送请求：
+
+    ​ 1.1、通过Exchange的writeRequestHeaders(request)方法写入请求的header；
+
+    ​ 1.2、如果请求的body不为空，通过okio写入请求的body。
+
+    2、获取响应：
+
+    ​ 2.1、通过Exchange的readResponseHeaders(boolean)方法读取响应的header；
+
+    ​ 2.2、通过Exchange的openResponseBody(Response)方法读取响应的body。
+
+
+https://juejin.cn/post/6844903945828040711  拦截器
+
+https://www.jianshu.com/p/2fff6fe403dd  okio
+
+RealConnection 内部维护了一个集合
+    final List<Reference<Transmitter>> transmitters = new ArrayList<>();
+
+Transmitter是okhttp中应用层和网络层的桥梁，管理同一个Call里的所有连接、请求、响应和IO流之间的关系
+    releaseConnectionNoEvents
+    acquireConnectionNoEvents
