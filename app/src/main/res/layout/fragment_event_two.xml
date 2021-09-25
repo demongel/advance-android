@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".chapter07eventbus.EventOneFragment">
+
+    <TextView
+        android:id="@+id/tv_eventtwo"
+        style="@style/HomeTextViewStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="发送事件" />
+
+    <TextView
+        android:id="@+id/tv_stick_event"
+        style="@style/HomeTextViewStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="发送黏性事件" />
+
+    <TextView
+        android:id="@+id/tv_otto_event"
+        style="@style/HomeTextViewStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="发送OTTO事件" />
+
+
+</LinearLayout>

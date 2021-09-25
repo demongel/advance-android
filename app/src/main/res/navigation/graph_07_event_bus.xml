@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/graph_07_event_bus"
+    app:startDestination="@id/eventOneFragment">
+
+    <fragment
+        android:id="@+id/eventOneFragment"
+        android:name="com.shakespace.advanceandroid.chapter07eventbus.EventOneFragment"
+        android:label="EventTwoFragment" >
+        <action
+            android:id="@+id/action_eventOneFragment_to_eventTwoFragment"
+            app:destination="@id/eventTwoFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/eventTwoFragment"
+        android:name="com.shakespace.advanceandroid.chapter07eventbus.EventTwoFragment"
+        android:label="EventTwoFragment" />
+</navigation>

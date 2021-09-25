@@ -33,6 +33,11 @@
             android:text="03 View" />
 
         <TextView
+            android:id="@+id/tv_chapter07"
+            style="@style/HomeTextViewStyle"
+            android:text="07 事件总线" />
+
+        <TextView
             android:id="@+id/tv_biometric"
             style="@style/HomeTextViewStyle"
             android:text="Biometric" />

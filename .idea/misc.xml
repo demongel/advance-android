@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="CMakeSettings">
-    <configurations>
-      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
-    </configurations>
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Projects/AndroidStudioProjects/B_MyApp/AdvanceAndroid/app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="..\:/Projects/AndroidStudioProjects/B_MyApp/AdvanceAndroid/app/src/main/res/layout/fragment_event_one.xml" value="0.24954710144927536" />
+        <entry key="..\:/Projects/AndroidStudioProjects/B_MyApp/AdvanceAndroid/app/src/main/res/layout/fragment_event_two.xml" value="0.24954710144927536" />
+        <entry key="..\:/Projects/AndroidStudioProjects/B_MyApp/AdvanceAndroid/app/src/main/res/layout/fragment_home.xml" value="0.14628623188405798" />
+      </map>
+    </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
-    <output url="file://$PROJECT_DIR$/build/classes" />
-  </component>
-  <component name="ProjectType">
-    <option name="id" value="Android" />
-  </component>
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
 </project>

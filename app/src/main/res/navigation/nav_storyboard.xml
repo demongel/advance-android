@@ -46,6 +46,9 @@
         <action
             android:id="@+id/action_homeFragment_to_biometricFragment"
             app:destination="@id/biometricFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_graph_07_event_bus"
+            app:destination="@id/graph_07_event_bus" />
     </fragment>
     <include app:graph="@navigation/graph_01_new_feature" />
     <include app:graph="@navigation/graph_02_material" />
@@ -55,4 +58,5 @@
         android:name="com.shakespace.advanceandroid.biometric.BiometricFragment"
         android:label="fragment_biometric"
         tools:layout="@layout/fragment_biometric" />
+    <include app:graph="@navigation/graph_07_event_bus" />
 </navigation>
