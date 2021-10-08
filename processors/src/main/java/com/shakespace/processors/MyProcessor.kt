@@ -1,7 +1,6 @@
 package com.shakespace.processors
 
 import com.shakespace.annotations.BindView
-import com.sun.xml.internal.bind.v2.model.core.Element
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
