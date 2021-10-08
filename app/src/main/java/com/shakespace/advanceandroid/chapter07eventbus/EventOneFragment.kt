@@ -9,7 +9,9 @@ import android.widget.TextView
 import android.widget.Toast
 import com.shakespace.advanceandroid.R
 import com.shakespace.advanceandroid.chapter07eventbus.otto.OttoBus
+import com.shakespace.advanceandroid.chapter08rxjava.rxbus.RxBus
 import com.shakespace.advanceandroid.global.nav
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.fragment_event_one.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -27,6 +29,7 @@ class EventOneFragment : Fragment() {
 
     var rootView: View? = null
     var tv_eventOne: TextView? = null
+    lateinit var disposable: Disposable
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,11 +67,19 @@ class EventOneFragment : Fragment() {
                 Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
             }
         }
+
+        disposable = RxBus.getInstance().toObservable(MessageEvent::class.java)
+            .subscribe {
+                tv_eventOne?.text = it.message
+            }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         EventBus.getDefault().unregister(this)
+        if (this::disposable.isInitialized && disposable != null) {
+            disposable.dispose()
+        }
     }
 
     @com.squareup.otto.Subscribe
