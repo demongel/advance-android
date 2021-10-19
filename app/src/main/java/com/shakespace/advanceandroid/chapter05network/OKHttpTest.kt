@@ -4,6 +4,7 @@ import android.util.Log
 import com.bumptech.glide.RequestBuilder
 import com.shakespace.advanceandroid.global.TAG
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -36,7 +37,7 @@ val callback = object : Callback {
     }
 
     override fun onResponse(call: Call, response: Response) {
-        println(response.body()?.string())
+        println(response.body?.string())
     }
 }
 
@@ -64,7 +65,7 @@ fun uploadMultipart() {
         .addFormDataPart(
             "body",
             "pic.png",
-            RequestBody.create(MediaType.parse("image/png"), File("pic.png"))
+            RequestBody.create("image/png".toMediaTypeOrNull(), File("pic.png"))
         ).build()
 
     val request = Request.Builder().header("authorization", "Client-ID")
@@ -89,7 +90,7 @@ fun downloadFile() {
             }
 
             override fun onResponse(call: Call, response: Response) {
-                val byteStream = response.body()?.byteStream()
+                val byteStream = response.body?.byteStream()
                 val file = File("pic.png")
                 val fileOutputStream = FileOutputStream(file)
                 byteStream?.apply {
@@ -119,7 +120,7 @@ fun uploadFile() {
 //    MediaType.parse("build.gradle")
     val uploadRequest = Request.Builder()
         .url(upload)
-        .post(RequestBody.create(MediaType.parse("text/x-markdown;charset=urf-8"), file))
+        .post(RequestBody.create("text/x-markdown;charset=urf-8".toMediaTypeOrNull(), file))
         .build()
 
     // upload 返回的是上传的内容
@@ -144,7 +145,7 @@ fun normalPost() {
             }
 
             override fun onResponse(call: Call, response: Response) {
-                println(response.body()?.string())
+                println(response.body?.string())
             }
 
         })
@@ -175,7 +176,7 @@ fun normalGet() {
         }
 
         override fun onResponse(call: Call, response: Response) {
-            println(response.body()?.string())
+            println(response.body?.string())
         }
     })
 }
